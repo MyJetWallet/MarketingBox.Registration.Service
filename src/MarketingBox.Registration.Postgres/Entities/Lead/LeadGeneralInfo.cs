@@ -5,6 +5,5 @@
         public long AffiliateId { get; set; }
         public long CampaignId { get; set; }
         public long BoxId { get; set; }
-        public LeadAdditionalInfo AdditionalInfo { get; set; }
     }
 }

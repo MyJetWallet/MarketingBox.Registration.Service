@@ -14,6 +14,7 @@ namespace MarketingBox.Registration.Postgres.Entities.Lead
         public string Phone { get; set; }
         public string Ip { get; set; }
         public LeadGeneralInfo GeneralInfo { get; set; }
+        public LeadAdditionalInfo AdditionalInfo { get; set; }
         public LeadType Type { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public long Sequence { get; set; }
