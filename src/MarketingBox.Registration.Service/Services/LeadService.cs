@@ -210,7 +210,7 @@ namespace MarketingBox.Registration.Service.Services
         {
             return new LeadCreateResponse()
             {
-                LeadId = leadEntity.LeadId,
+                //LeadId = leadEntity.LeadId,
                 //Sequence = leadEntity.Sequence
                 BrandInfo = new LeadBrandInfo()
                 {

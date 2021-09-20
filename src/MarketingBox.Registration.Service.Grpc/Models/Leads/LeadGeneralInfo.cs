@@ -33,9 +33,6 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads
         public string Ip { get; set; }
 
         [DataMember(Order = 7)]
-        public LeadType Type { get; set; }
-        
-        [DataMember(Order = 8)]
         public DateTime CreatedAt { get; set; }
     }
 }

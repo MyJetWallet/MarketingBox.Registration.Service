@@ -11,33 +11,33 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads
         public string Sub { get; set; }
 
         [DataMember(Order = 3)]
-        public string MPC_1 { get; set; }
+        public string Sub1 { get; set; }
 
         [DataMember(Order = 4)]
-        public string MPC_2 { get; set; }
+        public string Sub2 { get; set; }
 
         [DataMember(Order = 5)]
-        public string MPC_3 { get; set; }
+        public string Sub3 { get; set; }
 
         [DataMember(Order = 6)]
-        public string MPC_4 { get; set; }
+        public string Sub4 { get; set; }
 
         [DataMember(Order = 7)]
-        public string MPC_5 { get; set; }
+        public string Sub5 { get; set; }
 
         [DataMember(Order = 8)]
-        public string MPC_6 { get; set; }
+        public string Sub6 { get; set; }
 
         [DataMember(Order = 9)]
-        public string MPC_7 { get; set; }
+        public string Sub7 { get; set; }
 
         [DataMember(Order = 10)]
-        public string MPC_8 { get; set; }
+        public string Sub8 { get; set; }
 
         [DataMember(Order = 11)]
-        public string MPC_9 { get; set; }
+        public string Sub9 { get; set; }
 
         [DataMember(Order = 12)]
-        public string MPC_10 { get; set; }
+        public string Sub10 { get; set; }
     }
 }
