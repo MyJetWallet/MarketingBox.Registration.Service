@@ -9,34 +9,33 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads
     public class LeadGeneralInfo
     {
         [DataMember(Order = 1)]
-        public string Username { get; set; }
-        
+        [LogMasked(PreserveLength = true, ShowFirst = 2, ShowLast = 2)]
+        public string FirstName { get; set; }
+
         [DataMember(Order = 2)]
-        [LogMasked(PreserveLength = false)]
-        public string Password { get; set; }
-        
+        [LogMasked(PreserveLength = true, ShowFirst = 2, ShowLast = 2)]
+        public string LastName { get; set; }
+
         [DataMember(Order = 3)]
-        [LogMasked(PreserveLength = true, ShowFirst = 1, ShowLast = 1)]
-        public string Email { get; set; }
-        
+        [LogMasked(PreserveLength = true)]
+        public string Password { get; set; }
+
         [DataMember(Order = 4)]
         [LogMasked(PreserveLength = true, ShowFirst = 2, ShowLast = 2)]
-        public string Phone { get; set; }
+        public string Email { get; set; }
 
         [DataMember(Order = 5)]
         [LogMasked(PreserveLength = true, ShowFirst = 2, ShowLast = 2)]
-        public string Skype { get; set; }
+        public string Phone { get; set; }
         
         [DataMember(Order = 6)]
-        public string ZipCode { get; set; }
-        
+        [LogMasked(PreserveLength = true, ShowFirst = 2, ShowLast = 2)]
+        public string Ip { get; set; }
+
         [DataMember(Order = 7)]
-        public LeadState State { get; set; }
+        public LeadType Type { get; set; }
         
         [DataMember(Order = 8)]
-        public Currency Currency { get; set; }
-        
-        [DataMember(Order = 9)]
         public DateTime CreatedAt { get; set; }
     }
 }

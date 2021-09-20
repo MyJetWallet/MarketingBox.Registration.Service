@@ -1,12 +1,12 @@
 ﻿using System.Runtime.Serialization;
 
-namespace MarketingBox.Registration.Service.Grpc.Models.Leads
+namespace MarketingBox.Registration.Service.Grpc.Models.Leads.Requests
 {
     [DataContract]
-    public class Lead
+    public class LeadCreateRequest
     {
         [DataMember(Order = 1)]
-        public long LeadId { get; set; }
+        public string TenantId { get; set; }
 
         [DataMember(Order = 2)]
         public LeadGeneralInfo GeneralInfo { get; set; }
@@ -17,10 +17,5 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads
         [DataMember(Order = 4)]
         public LeadAdditionalInfo AdditionalInfo { get; set; }
 
-        [DataMember(Order = 5)]
-        public string TenantId { get; set; }
-
-        [DataMember(Order = 6)]
-        public long Sequence { get; set; }
     }
 }

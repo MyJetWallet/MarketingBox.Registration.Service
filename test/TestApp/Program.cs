@@ -4,6 +4,7 @@ using MarketingBox.Registration.Service.Client;
 using MarketingBox.Registration.Service.Grpc.Models.Common;
 using MarketingBox.Registration.Service.Grpc.Models.Leads;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Messages;
+using MarketingBox.Registration.Service.Grpc.Models.Leads.Requests;
 using ProtoBuf.Grpc.Client;
 
 namespace TestApp
@@ -32,37 +33,37 @@ namespace TestApp
             };
             request.GeneralInfo = new LeadGeneralInfo()
             {
-                Currency = Currency.CHF,
-                Email = "email@email.com",
-                Password = "sadadadwad",
-                Phone = "+79990999999",
-                Skype = "skype",
-                State = LeadState.Active,
-                Username = "User",
-                ZipCode = "414141"
+                //Currency = Currency.CHF,
+                //Email = "email@email.com",
+                //Password = "sadadadwad",
+                //Phone = "+79990999999",
+                //Skype = "skype",
+                //Type = LeadType.Active,
+                //Username = "User",
+                //ZipCode = "414141"
             };
 
-            var partnerCreated = (await  client.CreateAsync(request)).Lead;
+            var leadCreated = (await  client.CreateAsync(request)).BrandInfo;
 
-            Console.WriteLine(partnerCreated.AffiliateId);
+            //Console.WriteLine(leadCreated.LeadId);
 
-            var partnerUpdated = (await client.UpdateAsync(new LeadUpdateRequest()
-            {
-                LeadId = partnerCreated.AffiliateId,
-                TenantId = partnerCreated.TenantId,
-                GeneralInfo = request.GeneralInfo,
-                Sequence = 1
-            })).Lead;
+            //var partnerUpdated = (await client.UpdateAsync(new LeadUpdateRequest()
+            //{
+            //    LeadId = leadCreated.LeadId,
+            //    TenantId = leadCreated.TenantId,
+            //    GeneralInfo = request.GeneralInfo,
+            //    Sequence = 1
+            //})).Lead;
 
-            await client.DeleteAsync(new LeadDeleteRequest()
-            {
-                LeadId = partnerUpdated.AffiliateId,
-            });
+            //await client.DeleteAsync(new LeadDeleteRequest()
+            //{
+            //    LeadId = partnerUpdated.LeadId,
+            //});
 
-            var shouldBeNull =await client.GetAsync(new LeadGetRequest()
-            {
-                LeadId = partnerUpdated.AffiliateId,
-            });
+            //var shouldBeNull =await client.GetAsync(new LeadGetRequest()
+            //{
+            //    LeadId = partnerUpdated.LeadId,
+            //});
 
             Console.WriteLine("End");
             Console.ReadLine();

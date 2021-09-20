@@ -1,9 +1,8 @@
 ﻿namespace MarketingBox.Registration.Service.Grpc.Models.Leads
 {
-    public enum LeadState
+    public enum LeadType
     {
-        Active,
-        Banned,
-        NotActive,
+        Lead,
+        Failure
     }
 }

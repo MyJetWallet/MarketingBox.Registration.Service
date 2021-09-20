@@ -2,6 +2,8 @@
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Messages;
 using System.ServiceModel;
 using System.Threading.Tasks;
+using MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts;
+using MarketingBox.Registration.Service.Grpc.Models.Leads.Requests;
 
 namespace MarketingBox.Registration.Service.Grpc
 {
@@ -9,15 +11,15 @@ namespace MarketingBox.Registration.Service.Grpc
     public interface ILeadService
     {
         [OperationContract]
-        Task<LeadResponse> CreateAsync(LeadCreateRequest request);
+        Task<LeadCreateResponse> CreateAsync(LeadCreateRequest request);
 
         [OperationContract]
-        Task<LeadResponse> UpdateAsync(LeadUpdateRequest request);
+        Task<LeadCreateResponse> UpdateAsync(LeadUpdateRequest request);
 
         [OperationContract]
-        Task<LeadResponse> GetAsync(LeadGetRequest request);
+        Task<LeadCreateResponse> GetAsync(LeadGetRequest request);
 
         [OperationContract]
-        Task<LeadResponse> DeleteAsync(LeadDeleteRequest request);
+        Task<LeadCreateResponse> DeleteAsync(LeadDeleteRequest request);
     }
 }

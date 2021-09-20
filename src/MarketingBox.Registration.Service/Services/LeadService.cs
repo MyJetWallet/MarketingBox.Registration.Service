@@ -14,6 +14,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using MarketingBox.Registration.Postgres.Entities.Lead;
 using MarketingBox.Registration.Service.Grpc.Models.Common;
+using MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts;
+using MarketingBox.Registration.Service.Grpc.Models.Leads.Requests;
 using Z.EntityFramework.Plus;
 using LeadGeneralInfo = MarketingBox.Registration.Postgres.Entities.Lead.LeadGeneralInfo;
 
@@ -40,7 +42,7 @@ namespace MarketingBox.Registration.Service.Services
             _publisherPartnerRemoved = publisherPartnerRemoved;
         }
 
-        public async Task<LeadResponse> CreateAsync(LeadCreateRequest request)
+        public async Task<LeadCreateResponse> CreateAsync(LeadCreateRequest request)
         {
             _logger.LogInformation("Creating new Lead {@context}", request);
             using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
@@ -52,7 +54,7 @@ namespace MarketingBox.Registration.Service.Services
                 {
                     //CreatedAt = DateTime.UtcNow,
                     //Skype = request.GeneralInfo.Skype,
-                    //Type = request.GeneralInfo.State.MapEnum<Domain.Lead.LeadType>(),
+                    //Type = request.GeneralInfo.Type.MapEnum<Domain.Lead.LeadType>(),
                     //Username = request.GeneralInfo.Username,
                     //ZipCode = request.GeneralInfo.ZipCode,
                     //Email = request.GeneralInfo.Email,
@@ -79,11 +81,11 @@ namespace MarketingBox.Registration.Service.Services
             {
                 _logger.LogError(e, "Error creating partner {@context}", request);
 
-                return new LeadResponse() { Error = new Error() { Message = "Internal error", Type = ErrorType.Unknown } };
+                return new LeadCreateResponse() { Error = new Error() { Message = "Internal error", Type = ErrorType.Unknown } };
             }
         }
 
-        public async Task<LeadResponse> UpdateAsync(LeadUpdateRequest request)
+        public async Task<LeadCreateResponse> UpdateAsync(LeadUpdateRequest request)
         {
             _logger.LogInformation("Updating a Lead {@context}", request);
             using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
@@ -96,7 +98,7 @@ namespace MarketingBox.Registration.Service.Services
                 {
                     //CreatedAt = DateTime.UtcNow,
                     //Skype = request.GeneralInfo.Skype,
-                    //Type = request.GeneralInfo.State.MapEnum<Domain.Lead.LeadType>(),
+                    //Type = request.GeneralInfo.Type.MapEnum<Domain.Lead.LeadType>(),
                     //Username = request.GeneralInfo.Username,
                     //ZipCode = request.GeneralInfo.ZipCode,
                     //Email = request.GeneralInfo.Email,
@@ -119,7 +121,7 @@ namespace MarketingBox.Registration.Service.Services
                     {
                         //CreatedAt = DateTime.UtcNow,
                         //Skype = request.GeneralInfo.Skype,
-                        //Type = request.GeneralInfo.State.MapEnum<Domain.Lead.LeadType>(),
+                        //Type = request.GeneralInfo.Type.MapEnum<Domain.Lead.LeadType>(),
                         //Username = request.GeneralInfo.Username,
                         //ZipCode = request.GeneralInfo.ZipCode,
                         //Email = request.GeneralInfo.Email,
@@ -147,11 +149,11 @@ namespace MarketingBox.Registration.Service.Services
             {
                 _logger.LogError(e, "Error updating lead {@context}", request);
 
-                return new LeadResponse() { Error = new Error() { Message = "Internal error", Type = ErrorType.Unknown } };
+                return new LeadCreateResponse() { Error = new Error() { Message = "Internal error", Type = ErrorType.Unknown } };
             }
         }
 
-        public async Task<LeadResponse> GetAsync(LeadGetRequest request)
+        public async Task<LeadCreateResponse> GetAsync(LeadGetRequest request)
         {
             using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
@@ -159,17 +161,17 @@ namespace MarketingBox.Registration.Service.Services
             {
                 var partnerEntity = await ctx.Leads.FirstOrDefaultAsync(x => x.LeadId == request.LeadId);
 
-                return partnerEntity != null ? MapToGrpc(partnerEntity) : new LeadResponse();
+                return partnerEntity != null ? MapToGrpc(partnerEntity) : new LeadCreateResponse();
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Error getting lead {@context}", request);
 
-                return new LeadResponse() { Error = new Error() { Message = "Internal error", Type = ErrorType.Unknown } };
+                return new LeadCreateResponse() { Error = new Error() { Message = "Internal error", Type = ErrorType.Unknown } };
             }
         }
 
-        public async Task<LeadResponse> DeleteAsync(LeadDeleteRequest request)
+        public async Task<LeadCreateResponse> DeleteAsync(LeadDeleteRequest request)
         {
             using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
@@ -179,7 +181,7 @@ namespace MarketingBox.Registration.Service.Services
                 var partnerEntity = await ctx.Leads.FirstOrDefaultAsync(x => x.LeadId == request.LeadId);
 
                 if (partnerEntity == null)
-                    return new LeadResponse();
+                    return new LeadCreateResponse();
 
                 await _publisherPartnerRemoved.PublishAsync(new PartnerRemoved()
                 {
@@ -194,36 +196,37 @@ namespace MarketingBox.Registration.Service.Services
 
                 await ctx.Leads.Where(x => x.LeadId == partnerEntity.LeadId).DeleteAsync();
 
-                return new LeadResponse();
+                return new LeadCreateResponse();
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Error deleting lead {@context}", request);
 
-                return new LeadResponse() { Error = new Error() { Message = "Internal error", Type = ErrorType.Unknown } };
+                return new LeadCreateResponse() { Error = new Error() { Message = "Internal error", Type = ErrorType.Unknown } };
             }
         }
 
-        private static LeadResponse MapToGrpc(LeadEntity leadEntity)
+        private static LeadCreateResponse MapToGrpc(LeadEntity leadEntity)
         {
-            return new LeadResponse()
+            return new LeadCreateResponse()
             {
-                Lead = new Lead()
+                LeadId = leadEntity.LeadId,
+                //Sequence = leadEntity.Sequence
+                BrandInfo = new LeadBrandInfo()
                 {
-                    TenantId = leadEntity.TenantId,
-                    AffiliateId = leadEntity.LeadId,
-                    GeneralInfo = new Grpc.Models.Leads.LeadGeneralInfo()
-                    {
-                        //CreatedAt = leadEntity.GeneralInfo.CreatedAt.UtcDateTime,
-                        //Email = leadEntity.GeneralInfo.Email,
-                        //Password = leadEntity.GeneralInfo.Password,
-                        //Phone = leadEntity.GeneralInfo.Phone,
-                        //Skype = leadEntity.GeneralInfo.Skype,
-                        //State = leadEntity.GeneralInfo.Type.MapEnum<LeadState>(),
-                        //Username = leadEntity.GeneralInfo.Username,
-                        //ZipCode = leadEntity.GeneralInfo.ZipCode
-                    },
-                    Sequence = leadEntity.Sequence
+
+                    //GeneralInfo = new Grpc.Models.Leads.LeadGeneralInfo()
+                    //{
+                    //    //CreatedAt = leadEntity.GeneralInfo.CreatedAt.UtcDateTime,
+                    //    //Email = leadEntity.GeneralInfo.Email,
+                    //    //Password = leadEntity.GeneralInfo.Password,
+                    //    //Phone = leadEntity.GeneralInfo.Phone,
+                    //    //Skype = leadEntity.GeneralInfo.Skype,
+                    //    //Type = leadEntity.GeneralInfo.Type.MapEnum<LeadType>(),
+                    //    //Username = leadEntity.GeneralInfo.Username,
+                    //    //ZipCode = leadEntity.GeneralInfo.ZipCode
+                    //},
+                    
                 }
             };
         }
@@ -242,7 +245,7 @@ namespace MarketingBox.Registration.Service.Services
                     //Phone = leadEntity.GeneralInfo.Phone,
                     //Role = leadEntity.GeneralInfo.Role.MapEnum<Messages.Partners.PartnerRole>(),
                     //Skype = leadEntity.GeneralInfo.Skype,
-                    //State = leadEntity.GeneralInfo.Type.MapEnum<Messages.Partners.PartnerState>(),
+                    //Type = leadEntity.GeneralInfo.Type.MapEnum<Messages.Partners.PartnerState>(),
                     //Username = leadEntity.GeneralInfo.Username,
                     //ZipCode = leadEntity.GeneralInfo.ZipCode
                 }
@@ -262,7 +265,7 @@ namespace MarketingBox.Registration.Service.Services
                     //Phone = leadEntity.GeneralInfo.Phone,
                     //Role = leadEntity.GeneralInfo.Role.MapEnum<MyNoSql.Leads.PartnerRole>(),
                     //Skype = leadEntity.GeneralInfo.Skype,
-                    //State = leadEntity.GeneralInfo.Type.MapEnum<MyNoSql.Leads.PartnerState>(),
+                    //Type = leadEntity.GeneralInfo.Type.MapEnum<MyNoSql.Leads.PartnerState>(),
                     //Username = leadEntity.GeneralInfo.Username,
                     //ZipCode = leadEntity.GeneralInfo.ZipCode
                 },
