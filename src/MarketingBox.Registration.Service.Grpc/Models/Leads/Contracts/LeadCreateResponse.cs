@@ -35,7 +35,7 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts
                 BrandInfo = new LeadBrandInfo()
                 {
                     Status = "successful",
-                    Data = _brandRegistrationInfo.ToString()
+                    Data = _brandRegistrationInfo
                 },
             };
         }

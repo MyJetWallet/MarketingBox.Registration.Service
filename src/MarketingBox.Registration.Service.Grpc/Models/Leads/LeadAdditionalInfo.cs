@@ -2,6 +2,7 @@
 
 namespace MarketingBox.Registration.Service.Grpc.Models.Leads
 {
+    [DataContract]
     public class LeadAdditionalInfo
     {
         [DataMember(Order = 1)]
