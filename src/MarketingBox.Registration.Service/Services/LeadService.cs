@@ -75,9 +75,6 @@ namespace MarketingBox.Registration.Service.Services
             _logger.LogInformation("Creating new Lead {@context}", request);
             using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
-            var partner = 
-                _partnerNoSqlServerDataReader.Get(PartnerNoSql.GeneratePartitionKey(request.AuthInfo.AffiliateId.ToString())).FirstOrDefault();
-
             var box =
                 _boxIndexNoSqlServerDataReader.Get(BoxIndexNoSql.GeneratePartitionKey(request.AuthInfo.BoxId)).FirstOrDefault();
 
@@ -88,11 +85,14 @@ namespace MarketingBox.Registration.Service.Services
 
             var brand = _brandNoSqlServerDataReader.Get(BrandNoSql.GeneratePartitionKey(box.TenantId), BrandNoSql.GenerateRowKey(campaign.BrandId));
 
-            if (request.AuthInfo.AffiliateId != partner.AffiliateId
-                || request.AuthInfo.ApiKey != partner.GeneralInfo.ApiKey)
-            {
-                return new LeadCreateResponse() { Error = new Error() { Message = "Invalid partner data", Type = ErrorType.InvalidParameter} };
-            }
+            var partner =
+                _partnerNoSqlServerDataReader.Get(PartnerNoSql.GeneratePartitionKey(box.TenantId), PartnerNoSql.GenerateRowKey(request.AuthInfo.AffiliateId));
+
+            //if (request.AuthInfo.AffiliateId != partner.AffiliateId
+            //    || request.AuthInfo.ApiKey != partner.GeneralInfo.ApiKey)
+            //{
+            //    return new LeadCreateResponse() { Error = new Error() { Message = "Invalid partner data", Type = ErrorType.InvalidParameter} };
+            //}
 
             var leadEntity = new LeadEntity()
             {
