@@ -25,7 +25,6 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts
         [DataMember(Order = 100)]
         public Error Error { get; set; }
 
-
         public static LeadCreateResponse Successfully(LeadBrandRegistrationInfo _brandRegistrationInfo)
         {
             return new LeadCreateResponse()

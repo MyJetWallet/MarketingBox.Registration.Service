@@ -12,7 +12,7 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads.Requests
         public LeadGeneralInfo GeneralInfo { get; set; }
 
         [DataMember(Order = 3)]
-        public LeadAuthInfo Route { get; set; }
+        public LeadRouteInfo Route { get; set; }
 
         [DataMember(Order = 4)]
         public LeadAdditionalInfo AdditionalInfo { get; set; }

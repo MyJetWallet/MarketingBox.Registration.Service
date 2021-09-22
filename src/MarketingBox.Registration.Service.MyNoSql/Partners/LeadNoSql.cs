@@ -21,17 +21,15 @@ namespace MarketingBox.Registration.Service.MyNoSql.Leads
 
         public static LeadNoSql Create(
             string tenantId,
-            long affiliateId, 
-            LeadGeneralInfo generalInfo,
-            long sequence) =>
+            long leadId, 
+            LeadGeneralInfo generalInfo) =>
             new()
             {
                 PartitionKey = GeneratePartitionKey(tenantId),
-                RowKey = GenerateRowKey(affiliateId),
-                AffiliateId = affiliateId,
+                RowKey = GenerateRowKey(leadId),
+                AffiliateId = leadId,
                 GeneralInfo = generalInfo,
-                TenantId = tenantId,
-                Sequence = sequence
+                TenantId = tenantId
             };
 
     }

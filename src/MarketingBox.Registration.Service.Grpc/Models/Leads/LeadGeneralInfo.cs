@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using Destructurama.Attributed;
-using MarketingBox.Registration.Service.Grpc.Models.Common;
 
 namespace MarketingBox.Registration.Service.Grpc.Models.Leads
 {

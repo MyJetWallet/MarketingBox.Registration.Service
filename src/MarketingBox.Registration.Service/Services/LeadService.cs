@@ -11,13 +11,16 @@ using Microsoft.Extensions.Logging;
 using MyNoSqlServer.Abstractions;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MarketingBox.Registration.Postgres.Entities.Lead;
 using MarketingBox.Registration.Service.Grpc.Models.Common;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Requests;
 using Z.EntityFramework.Plus;
-using LeadGeneralInfo = MarketingBox.Registration.Postgres.Entities.Lead.LeadGeneralInfo;
+using LeadBrandInfo = MarketingBox.Registration.Postgres.Entities.Lead.LeadBrandInfo;
+using LeadStatus = MarketingBox.Registration.Service.Domain.Lead.LeadStatus;
+using LeadType = MarketingBox.Registration.Service.Domain.Lead.LeadType;
 
 namespace MarketingBox.Registration.Service.Services
 {
@@ -50,16 +53,22 @@ namespace MarketingBox.Registration.Service.Services
             var leadEntity = new LeadEntity()
             {
                 TenantId = request.TenantId,
-                GeneralInfo = new LeadGeneralInfo()
+                //LeadId = 1,//Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", ""),
+                CreatedAt = request.GeneralInfo.CreatedAt,
+                FirstName = request.GeneralInfo.FirstName,
+                LastName = request.GeneralInfo.LastName,
+                Email = request.GeneralInfo.Email,
+                Ip = request.GeneralInfo.Ip,
+                Password = request.GeneralInfo.Password,
+                Phone = request.GeneralInfo.Phone,
+                Status = LeadStatus.New,
+                Type = LeadType.Lead,
+                BrandInfo = new LeadBrandInfo()
                 {
-                    //CreatedAt = DateTime.UtcNow,
-                    //Skype = request.GeneralInfo.Skype,
-                    //Type = request.GeneralInfo.Type.MapEnum<Domain.Lead.LeadType>(),
-                    //Username = request.GeneralInfo.Username,
-                    //ZipCode = request.GeneralInfo.ZipCode,
-                    //Email = request.GeneralInfo.Email,
-                    //Password = request.GeneralInfo.Password,
-                    //Phone = request.GeneralInfo.Phone
+                    AffiliateId = request.Route.AffiliateId,
+                    BoxId = request.Route.BoxId,
+                    Brand = request.Route.Brand,
+                    CampaignId = request.Route.CampaignId
                 }
             };
 
@@ -68,21 +77,48 @@ namespace MarketingBox.Registration.Service.Services
                 ctx.Leads.Add(leadEntity);
                 await ctx.SaveChangesAsync();
 
-                await _publisherLeadUpdated.PublishAsync(MapToMessage(leadEntity));
-                _logger.LogInformation("Sent partner update to service bus {@context}", request);
+                //await _publisherLeadUpdated.PublishAsync(MapToMessage(leadEntity));
+                //_logger.LogInformation("Sent partner update to service bus {@context}", request);
 
-                var nosql = MapToNoSql(leadEntity);
-                await _myNoSqlServerDataWriter.InsertOrReplaceAsync(nosql);
-                _logger.LogInformation("Sent partner update to MyNoSql {@context}", request);
+                //var nosql = MapToNoSql(leadEntity);
+                //await _myNoSqlServerDataWriter.InsertOrReplaceAsync(nosql);
+                //_logger.LogInformation("Sent partner update to MyNoSql {@context}", request);
 
-                return MapToGrpc(leadEntity);
+                var brandInfo = await BrandRegisterAsync(leadEntity);
+
+                return MapToGrpc(leadEntity, brandInfo);
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error creating partner {@context}", request);
+                _logger.LogError(e, "Error creating lead {@context}", request);
 
                 return new LeadCreateResponse() { Error = new Error() { Message = "Internal error", Type = ErrorType.Unknown } };
             }
+        }
+
+        public async Task<Grpc.Models.Leads.LeadBrandInfo> BrandRegisterAsync(LeadEntity leadEntity)
+        {
+            string brandLoginUrl = @"https://trading-test.handelpro.biz/lpLogin/6DB5D4818181B806DBF7B19EBDC5FD97F1B82759077317B6481BC883F071783DBEF568426B81DF43044E326C26437E097F21A2484110D13420E9EC6E44A1B2BE?lang=PL";
+            string brandName = "Monfex";
+            string brandCustomerId = "02537c06cab34f62931c263bf3480959";
+            string customerEmail = "yuriy.test.2020.09.22.01@mailinator.com";
+            string brandToken = "6DB5D4818181B806DBF7B19EBDC5FD97F1B82759077317B6481BC883F071783DBEF568426B81DF43044E326C26437E097F21A2484110D13420E9EC6E44A1B2BE";
+
+            var brandInfo = new Grpc.Models.Leads.LeadBrandInfo()
+            {
+                Status = "successful",
+                Data = new LeadBrandRegistrationInfo()
+                {
+                    Email = customerEmail, //leadEntity.Email,
+                    UniqueId = leadEntity.LeadId.ToString(),
+                    LoginUrl = brandLoginUrl,
+                    Broker = brandName,
+                    CustomerId = brandCustomerId,
+                    Token = brandToken
+                }
+            };
+            await Task.Delay(1000);
+            return brandInfo;
         }
 
         public async Task<LeadCreateResponse> UpdateAsync(LeadUpdateRequest request)
@@ -90,45 +126,46 @@ namespace MarketingBox.Registration.Service.Services
             _logger.LogInformation("Updating a Lead {@context}", request);
             using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
-            var partnerEntity = new LeadEntity()
+            var leadEntity = new LeadEntity()
             {
                 LeadId = request.LeadId,
                 TenantId = request.TenantId,
-                GeneralInfo = new LeadGeneralInfo()
+                BrandInfo = new LeadBrandInfo()
                 {
                     //CreatedAt = DateTime.UtcNow,
-                    //Skype = request.GeneralInfo.Skype,
-                    //Type = request.GeneralInfo.Type.MapEnum<Domain.Lead.LeadType>(),
-                    //Username = request.GeneralInfo.Username,
-                    //ZipCode = request.GeneralInfo.ZipCode,
-                    //Email = request.GeneralInfo.Email,
-                    //Password = request.GeneralInfo.Password,
-                    //Phone = request.GeneralInfo.Phone
+                    //Skype = request.BrandInfo.Skype,
+                    //Type = request.BrandInfo.Type.MapEnum<Domain.Lead.LeadType>(),
+                    //Username = request.BrandInfo.Username,
+                    //ZipCode = request.BrandInfo.ZipCode,
+                    //Email = request.BrandInfo.Email,
+                    //Password = request.BrandInfo.Password,
+                    //Phone = request.BrandInfo.Phone
                 },
-                Sequence = request.Sequence
+                //Sequence = request.Sequence
             };
 
             try
             {
                 var affectedRowsCount = await ctx.Leads
-                .Where(x => x.LeadId == request.LeadId &&
-                            x.Sequence <= request.Sequence)
+                .Where(x => x.LeadId == request.LeadId 
+                            //&& x.Sequence <= request.Sequence
+                        )
                 .UpdateAsync(x => new LeadEntity()
                 {
                     LeadId = request.LeadId,
                     TenantId = request.TenantId,
-                    GeneralInfo = new LeadGeneralInfo()
+                    BrandInfo = new LeadBrandInfo()
                     {
                         //CreatedAt = DateTime.UtcNow,
-                        //Skype = request.GeneralInfo.Skype,
-                        //Type = request.GeneralInfo.Type.MapEnum<Domain.Lead.LeadType>(),
-                        //Username = request.GeneralInfo.Username,
-                        //ZipCode = request.GeneralInfo.ZipCode,
-                        //Email = request.GeneralInfo.Email,
-                        //Password = request.GeneralInfo.Password,
-                        //Phone = request.GeneralInfo.Phone
+                        //Skype = request.BrandInfo.Skype,
+                        //Type = request.BrandInfo.Type.MapEnum<Domain.Lead.LeadType>(),
+                        //Username = request.BrandInfo.Username,
+                        //ZipCode = request.BrandInfo.ZipCode,
+                        //Email = request.BrandInfo.Email,
+                        //Password = request.BrandInfo.Password,
+                        //Phone = request.BrandInfo.Phone
                     },
-                    Sequence = request.Sequence
+                    //Sequence = request.Sequence
                 });
 
                 if (affectedRowsCount != 1)
@@ -136,14 +173,16 @@ namespace MarketingBox.Registration.Service.Services
                     throw new Exception("Update failed");
                 }
 
-                await _publisherLeadUpdated.PublishAsync(MapToMessage(partnerEntity));
-                _logger.LogInformation("Sent lead update to service bus {@context}", request);
+                //await _publisherLeadUpdated.PublishAsync(MapToMessage(partnerEntity));
+                //_logger.LogInformation("Sent lead update to service bus {@context}", request);
 
-                var nosql = MapToNoSql(partnerEntity);
-                await _myNoSqlServerDataWriter.InsertOrReplaceAsync(nosql);
-                _logger.LogInformation("Sent lead update to MyNoSql {@context}", request);
+                //var nosql = MapToNoSql(partnerEntity);
+                //await _myNoSqlServerDataWriter.InsertOrReplaceAsync(nosql);
+                //_logger.LogInformation("Sent lead update to MyNoSql {@context}", request);
 
-                return MapToGrpc(partnerEntity);
+                var brandInfo = await BrandRegisterAsync(leadEntity);
+
+                return MapToGrpc(leadEntity, brandInfo);
             }
             catch (Exception e)
             {
@@ -159,9 +198,12 @@ namespace MarketingBox.Registration.Service.Services
 
             try
             {
-                var partnerEntity = await ctx.Leads.FirstOrDefaultAsync(x => x.LeadId == request.LeadId);
-
-                return partnerEntity != null ? MapToGrpc(partnerEntity) : new LeadCreateResponse();
+                var leadEntity = await ctx.Leads.FirstOrDefaultAsync(x => x.LeadId == request.LeadId);
+                //TODO: Fix GetAsync
+                //return partnerEntity != null ? MapToGrpc(partnerEntity) : new LeadCreateResponse();
+                return leadEntity != null 
+                    ? MapToGrpc(leadEntity, await BrandRegisterAsync(leadEntity)) 
+                    : new LeadCreateResponse();
             }
             catch (Exception e)
             {
@@ -186,7 +228,7 @@ namespace MarketingBox.Registration.Service.Services
                 await _publisherPartnerRemoved.PublishAsync(new PartnerRemoved()
                 {
                     AffiliateId = partnerEntity.LeadId,
-                    Sequence = partnerEntity.Sequence,
+                    //Sequence = partnerEntity.Sequence,
                     TenantId = partnerEntity.TenantId
                 });
 
@@ -206,28 +248,18 @@ namespace MarketingBox.Registration.Service.Services
             }
         }
 
-        private static LeadCreateResponse MapToGrpc(LeadEntity leadEntity)
+        private static LeadCreateResponse MapToGrpc(LeadEntity leadEntity, 
+            Grpc.Models.Leads.LeadBrandInfo brandInfo)
         {
-            return new LeadCreateResponse()
+            //TODO: Remove
+            return new LeadCreateResponse() 
             {
-                //LeadId = leadEntity.LeadId,
-                //Sequence = leadEntity.Sequence
-                BrandInfo = new LeadBrandInfo()
-                {
-
-                    //GeneralInfo = new Grpc.Models.Leads.LeadGeneralInfo()
-                    //{
-                    //    //CreatedAt = leadEntity.GeneralInfo.CreatedAt.UtcDateTime,
-                    //    //Email = leadEntity.GeneralInfo.Email,
-                    //    //Password = leadEntity.GeneralInfo.Password,
-                    //    //Phone = leadEntity.GeneralInfo.Phone,
-                    //    //Skype = leadEntity.GeneralInfo.Skype,
-                    //    //Type = leadEntity.GeneralInfo.Type.MapEnum<LeadType>(),
-                    //    //Username = leadEntity.GeneralInfo.Username,
-                    //    //ZipCode = leadEntity.GeneralInfo.ZipCode
-                    //},
-                    
-                }
+                Status = true,
+                FallbackUrl = String.Empty,
+                BrandInfo = brandInfo,
+                Message = brandInfo.Data.LoginUrl,
+                Error = null,
+                OriginalData = null,
             };
         }
 
@@ -239,15 +271,15 @@ namespace MarketingBox.Registration.Service.Services
                 AffiliateId = leadEntity.LeadId,
                 GeneralInfo = new Messages.Partners.PartnerGeneralInfo()
                 {
-                    //CreatedAt = leadEntity.GeneralInfo.CreatedAt.UtcDateTime,
-                    //Email = leadEntity.GeneralInfo.Email,
-                    ////Password = leadEntity.GeneralInfo.Password,
-                    //Phone = leadEntity.GeneralInfo.Phone,
-                    //Role = leadEntity.GeneralInfo.Role.MapEnum<Messages.Partners.PartnerRole>(),
-                    //Skype = leadEntity.GeneralInfo.Skype,
-                    //Type = leadEntity.GeneralInfo.Type.MapEnum<Messages.Partners.PartnerState>(),
-                    //Username = leadEntity.GeneralInfo.Username,
-                    //ZipCode = leadEntity.GeneralInfo.ZipCode
+                    //CreatedAt = leadEntity.BrandInfo.CreatedAt.UtcDateTime,
+                    //Email = leadEntity.BrandInfo.Email,
+                    ////Password = leadEntity.BrandInfo.Password,
+                    //Phone = leadEntity.BrandInfo.Phone,
+                    //Role = leadEntity.BrandInfo.Role.MapEnum<Messages.Partners.PartnerRole>(),
+                    //Skype = leadEntity.BrandInfo.Skype,
+                    //Type = leadEntity.BrandInfo.Type.MapEnum<Messages.Partners.PartnerState>(),
+                    //Username = leadEntity.BrandInfo.Username,
+                    //ZipCode = leadEntity.BrandInfo.ZipCode
                 }
             };
         }
@@ -259,17 +291,11 @@ namespace MarketingBox.Registration.Service.Services
                 leadEntity.LeadId,
                 new MyNoSql.Leads.LeadGeneralInfo()
                 {
-                    //CreatedAt = leadEntity.GeneralInfo.CreatedAt.UtcDateTime,
-                    //Email = leadEntity.GeneralInfo.Email,
-                    ////Password = leadEntity.GeneralInfo.Password,
-                    //Phone = leadEntity.GeneralInfo.Phone,
-                    //Role = leadEntity.GeneralInfo.Role.MapEnum<MyNoSql.Leads.PartnerRole>(),
-                    //Skype = leadEntity.GeneralInfo.Skype,
-                    //Type = leadEntity.GeneralInfo.Type.MapEnum<MyNoSql.Leads.PartnerState>(),
-                    //Username = leadEntity.GeneralInfo.Username,
-                    //ZipCode = leadEntity.GeneralInfo.ZipCode
-                },
-                leadEntity.Sequence);
+                    CreatedAt = leadEntity.CreatedAt,
+                    Email = leadEntity.Email,
+                    Username = leadEntity.FirstName + " " + leadEntity.LastName
+                }
+                );
         }
     }
 }

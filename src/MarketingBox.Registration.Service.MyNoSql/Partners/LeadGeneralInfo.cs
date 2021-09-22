@@ -10,9 +10,6 @@ namespace MarketingBox.Registration.Service.MyNoSql.Leads
         public string Email { get; set; }
         
         public string Phone { get; set; }
-        public string Skype { get; set; }
-        
-        public string ZipCode { get; set; }
         
         public PartnerRole Role { get; set; }
         

@@ -28,61 +28,22 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads
     public class LeadBrandRegistrationInfo
     {
         [DataMember(Order = 1)]
-        public string AccountName { get; set; }
-
-        [LogMasked(PreserveLength = true)]
-        [DataMember(Order = 2)]
-        public string AccountPassword { get; set; }
-
-        [DataMember(Order = 3)]
-        public string BrokerName { get; set; }
-
-        [DataMember(Order = 4)]
-        public string BrokerUrl { get; set; }
-
-        [DataMember(Order = 5)]
-        public string Balance { get; set; }
-
-        [DataMember(Order = 6)]
-        public string Country { get; set; }
-
-        [DataMember(Order = 7)]
-        public string CountryCode { get; set; }
-
-        [DataMember(Order = 8)]
-        public string Currency { get; set; }
-
-        [DataMember(Order = 9)]
         public string CustomerId { get; set; }
 
-        [DataMember(Order = 10)]
+        [DataMember(Order = 2)]
         [LogMasked(PreserveLength = true, ShowFirst = 2, ShowLast = 2)]
         public string Email { get; set; }
 
-        [DataMember(Order = 11)]
-        public string FirstDepositDate { get; set; }
-
-        [DataMember(Order = 12)]
-        [LogMasked(PreserveLength = true, ShowFirst = 2, ShowLast = 2)]
-        public string FirstName { get; set; }
-
-        [DataMember(Order = 13)]
-        [LogMasked(PreserveLength = true, ShowFirst = 2, ShowLast = 2)]
-        public string LastName { get; set; }
-
-        [DataMember(Order = 14)]
+        [DataMember(Order = 3)]
         public string Token { get; set; }
 
-        [DataMember(Order = 15)]
+        [DataMember(Order = 4)]
         public string UniqueId { get; set; }
 
-        [DataMember(Order = 16)]
+        [DataMember(Order = 5)]
         public string LoginUrl { get; set; }
 
-        [DataMember(Order = 17)]
+        [DataMember(Order = 6)]
         public string Broker { get; set; }
-
-        [DataMember(Order = 18)]
-        public string Id { get; set; }
     }
 }
