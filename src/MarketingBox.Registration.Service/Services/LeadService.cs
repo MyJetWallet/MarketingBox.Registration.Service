@@ -13,6 +13,11 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using MarketingBox.Affiliate.Service.MyNoSql.Boxes;
+using MarketingBox.Affiliate.Service.MyNoSql.Brands;
+using MarketingBox.Affiliate.Service.MyNoSql.CampaignBoxes;
+using MarketingBox.Affiliate.Service.MyNoSql.Campaigns;
+using MarketingBox.Affiliate.Service.MyNoSql.Partners;
 using MarketingBox.Registration.Postgres.Entities.Lead;
 using MarketingBox.Registration.Service.Grpc.Models.Common;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts;
@@ -30,19 +35,39 @@ namespace MarketingBox.Registration.Service.Services
         private readonly DbContextOptionsBuilder<DatabaseContext> _dbContextOptionsBuilder;
         private readonly IPublisher<LeadUpdated> _publisherLeadUpdated;
         private readonly IMyNoSqlServerDataWriter<LeadNoSql> _myNoSqlServerDataWriter;
+        private readonly IMyNoSqlServerDataReader<BoxIndexNoSql> _boxIndexNoSqlServerDataReader;
+        private readonly IMyNoSqlServerDataReader<BrandNoSql> _brandNoSqlServerDataReader;
+        private readonly IMyNoSqlServerDataReader<BoxNoSql> _boxNoSqlServerDataReader;
+        private readonly IMyNoSqlServerDataReader<CampaignNoSql> _campaignNoSqlServerDataReader;
+        private readonly IMyNoSqlServerDataReader<CampaignBoxNoSql> _campaignBoxNoSqlServerDataReader;
+        private readonly IMyNoSqlServerDataReader<PartnerNoSql> _partnerNoSqlServerDataReader;
+
+
         private readonly IPublisher<PartnerRemoved> _publisherPartnerRemoved;
 
         public LeadService(ILogger<LeadService> logger,
             DbContextOptionsBuilder<DatabaseContext> dbContextOptionsBuilder,
             IPublisher<LeadUpdated> publisherLeadUpdated,
+            IPublisher<PartnerRemoved> publisherPartnerRemoved,
             IMyNoSqlServerDataWriter<LeadNoSql> myNoSqlServerDataWriter,
-            IPublisher<PartnerRemoved> publisherPartnerRemoved)
+            IMyNoSqlServerDataReader<BoxIndexNoSql> boxIndexNoSqlServerDataReader,
+            IMyNoSqlServerDataReader<BrandNoSql> brandNoSqlServerDataReader,
+            IMyNoSqlServerDataReader<BoxNoSql> boxNoSqlServerDataReader,
+            IMyNoSqlServerDataReader<CampaignNoSql> campaignNoSqlServerDataReader,
+            IMyNoSqlServerDataReader<CampaignBoxNoSql> campaignBoxNoSqlServerDataReader,
+            IMyNoSqlServerDataReader<PartnerNoSql> partnerNoSqlServerDataReader)
         {
             _logger = logger;
             _dbContextOptionsBuilder = dbContextOptionsBuilder;
             _publisherLeadUpdated = publisherLeadUpdated;
             _myNoSqlServerDataWriter = myNoSqlServerDataWriter;
             _publisherPartnerRemoved = publisherPartnerRemoved;
+            _boxIndexNoSqlServerDataReader = boxIndexNoSqlServerDataReader;
+            _brandNoSqlServerDataReader = brandNoSqlServerDataReader;
+            _boxNoSqlServerDataReader = boxNoSqlServerDataReader;
+            _campaignNoSqlServerDataReader = campaignNoSqlServerDataReader;
+            _campaignBoxNoSqlServerDataReader = campaignBoxNoSqlServerDataReader;
+            _partnerNoSqlServerDataReader = partnerNoSqlServerDataReader;
         }
 
         public async Task<LeadCreateResponse> CreateAsync(LeadCreateRequest request)
@@ -50,10 +75,28 @@ namespace MarketingBox.Registration.Service.Services
             _logger.LogInformation("Creating new Lead {@context}", request);
             using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
+            var partner = 
+                _partnerNoSqlServerDataReader.Get(PartnerNoSql.GeneratePartitionKey(request.AuthInfo.AffiliateId.ToString())).FirstOrDefault();
+
+            var box =
+                _boxIndexNoSqlServerDataReader.Get(BoxIndexNoSql.GeneratePartitionKey(request.AuthInfo.BoxId)).FirstOrDefault();
+
+            var campaignBox = _campaignBoxNoSqlServerDataReader.Get(CampaignBoxNoSql.GeneratePartitionKey(request.AuthInfo.BoxId)).FirstOrDefault();
+
+            var campaign =
+                _campaignNoSqlServerDataReader.Get(CampaignNoSql.GeneratePartitionKey(box.TenantId), CampaignNoSql.GenerateRowKey(campaignBox.CampaignId));
+
+            var brand = _brandNoSqlServerDataReader.Get(BrandNoSql.GeneratePartitionKey(box.TenantId), BrandNoSql.GenerateRowKey(campaign.BrandId));
+
+            if (request.AuthInfo.AffiliateId != partner.AffiliateId
+                || request.AuthInfo.ApiKey != partner.GeneralInfo.ApiKey)
+            {
+                return new LeadCreateResponse() { Error = new Error() { Message = "Invalid partner data", Type = ErrorType.InvalidParameter} };
+            }
+
             var leadEntity = new LeadEntity()
             {
-                TenantId = request.TenantId,
-                //LeadId = 1,//Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", ""),
+                TenantId = box.TenantId,
                 CreatedAt = request.GeneralInfo.CreatedAt,
                 FirstName = request.GeneralInfo.FirstName,
                 LastName = request.GeneralInfo.LastName,
@@ -65,10 +108,11 @@ namespace MarketingBox.Registration.Service.Services
                 Type = LeadType.Lead,
                 BrandInfo = new LeadBrandInfo()
                 {
-                    AffiliateId = request.Route.AffiliateId,
-                    BoxId = request.Route.BoxId,
-                    Brand = request.Route.Brand,
-                    CampaignId = request.Route.CampaignId
+                    
+                    AffiliateId = request.AuthInfo.AffiliateId,
+                    BoxId = request.AuthInfo.BoxId,
+                    Brand = brand.Name,
+                    CampaignId = campaign.Id
                 }
             };
 
@@ -84,7 +128,7 @@ namespace MarketingBox.Registration.Service.Services
                 //await _myNoSqlServerDataWriter.InsertOrReplaceAsync(nosql);
                 //_logger.LogInformation("Sent partner update to MyNoSql {@context}", request);
 
-                var brandInfo = await BrandRegisterAsync(leadEntity);
+                var brandInfo = await BrandRegisterAsync(leadEntity, brand.Name);
 
                 return MapToGrpc(leadEntity, brandInfo);
             }
@@ -96,10 +140,10 @@ namespace MarketingBox.Registration.Service.Services
             }
         }
 
-        public async Task<Grpc.Models.Leads.LeadBrandInfo> BrandRegisterAsync(LeadEntity leadEntity)
+        public async Task<Grpc.Models.Leads.LeadBrandInfo> BrandRegisterAsync(LeadEntity leadEntity, string brand)
         {
             string brandLoginUrl = @"https://trading-test.handelpro.biz/lpLogin/6DB5D4818181B806DBF7B19EBDC5FD97F1B82759077317B6481BC883F071783DBEF568426B81DF43044E326C26437E097F21A2484110D13420E9EC6E44A1B2BE?lang=PL";
-            string brandName = "Monfex";
+            string brandName = brand;
             string brandCustomerId = "02537c06cab34f62931c263bf3480959";
             string customerEmail = "yuriy.test.2020.09.22.01@mailinator.com";
             string brandToken = "6DB5D4818181B806DBF7B19EBDC5FD97F1B82759077317B6481BC883F071783DBEF568426B81DF43044E326C26437E097F21A2484110D13420E9EC6E44A1B2BE";
@@ -180,7 +224,7 @@ namespace MarketingBox.Registration.Service.Services
                 //await _myNoSqlServerDataWriter.InsertOrReplaceAsync(nosql);
                 //_logger.LogInformation("Sent lead update to MyNoSql {@context}", request);
 
-                var brandInfo = await BrandRegisterAsync(leadEntity);
+                var brandInfo = await BrandRegisterAsync(leadEntity, "Monfex UpdateAsync");
 
                 return MapToGrpc(leadEntity, brandInfo);
             }
@@ -202,7 +246,7 @@ namespace MarketingBox.Registration.Service.Services
                 //TODO: Fix GetAsync
                 //return partnerEntity != null ? MapToGrpc(partnerEntity) : new LeadCreateResponse();
                 return leadEntity != null 
-                    ? MapToGrpc(leadEntity, await BrandRegisterAsync(leadEntity)) 
+                    ? MapToGrpc(leadEntity, await BrandRegisterAsync(leadEntity, "Monfex GetAsync")) 
                     : new LeadCreateResponse();
             }
             catch (Exception e)
