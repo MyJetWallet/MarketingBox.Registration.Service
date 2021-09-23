@@ -75,28 +75,33 @@ namespace MarketingBox.Registration.Service.Services
             _logger.LogInformation("Creating new Lead {@context}", request);
             using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
-            var box =
-                _boxIndexNoSqlServerDataReader.Get(BoxIndexNoSql.GeneratePartitionKey(request.AuthInfo.BoxId)).FirstOrDefault();
+            if (!TryGetPartnerInfo(request, out var tenantId, out var brandName, out var campaignId, out var apiKey))
+            {
+                return LeadCreateResponse.Failed(
+                    new Error()
+                    {
+                        Message = "Can't get partner info",
+                        Type = ErrorType.Unknown
+                    },
+                    request.GeneralInfo
+                );
+            }
 
-            var campaignBox = _campaignBoxNoSqlServerDataReader.Get(CampaignBoxNoSql.GeneratePartitionKey(request.AuthInfo.BoxId)).FirstOrDefault();
-
-            var campaign =
-                _campaignNoSqlServerDataReader.Get(CampaignNoSql.GeneratePartitionKey(box.TenantId), CampaignNoSql.GenerateRowKey(campaignBox.CampaignId));
-
-            var brand = _brandNoSqlServerDataReader.Get(BrandNoSql.GeneratePartitionKey(box.TenantId), BrandNoSql.GenerateRowKey(campaign.BrandId));
-
-            var partner =
-                _partnerNoSqlServerDataReader.Get(PartnerNoSql.GeneratePartitionKey(box.TenantId), PartnerNoSql.GenerateRowKey(request.AuthInfo.AffiliateId));
-
-            //if (request.AuthInfo.AffiliateId != partner.AffiliateId
-            //    || request.AuthInfo.ApiKey != partner.GeneralInfo.ApiKey)
-            //{
-            //    return new LeadCreateResponse() { Error = new Error() { Message = "Invalid partner data", Type = ErrorType.InvalidParameter} };
-            //}
+            if (IsPartnerRequestInvalid(apiKey, request.AuthInfo.ApiKey))
+            {
+                return LeadCreateResponse.Failed(
+                    new Error()
+                    {
+                        Message = "Invalid partner data",
+                        Type = ErrorType.InvalidParameter
+                    },
+                    request.GeneralInfo
+                );
+            }
 
             var leadEntity = new LeadEntity()
             {
-                TenantId = box.TenantId,
+                TenantId = tenantId,
                 CreatedAt = request.GeneralInfo.CreatedAt,
                 FirstName = request.GeneralInfo.FirstName,
                 LastName = request.GeneralInfo.LastName,
@@ -111,8 +116,8 @@ namespace MarketingBox.Registration.Service.Services
                     
                     AffiliateId = request.AuthInfo.AffiliateId,
                     BoxId = request.AuthInfo.BoxId,
-                    Brand = brand.Name,
-                    CampaignId = campaign.Id
+                    Brand = brandName,
+                    CampaignId = campaignId
                 }
             };
 
@@ -128,7 +133,7 @@ namespace MarketingBox.Registration.Service.Services
                 //await _myNoSqlServerDataWriter.InsertOrReplaceAsync(nosql);
                 //_logger.LogInformation("Sent partner update to MyNoSql {@context}", request);
 
-                var brandInfo = await BrandRegisterAsync(leadEntity, brand.Name);
+                var brandInfo = await BrandRegisterAsync(leadEntity, brandName);
 
                 return MapToGrpc(leadEntity, brandInfo);
             }
@@ -138,6 +143,62 @@ namespace MarketingBox.Registration.Service.Services
 
                 return new LeadCreateResponse() { Error = new Error() { Message = "Internal error", Type = ErrorType.Unknown } };
             }
+        }
+
+        private bool TryGetPartnerInfo(LeadCreateRequest leadCreateRequest, out string outTenantId,
+            out string outBrandName, out long outCampaignId, out string outPartnerApiKey)
+        {
+            string tenantId = string.Empty;
+            string brandName = string.Empty;
+            long campaignId = 0;
+            string partnerApiKey = string.Empty;
+
+            try
+            {
+                var boxIndexNoSql = _boxIndexNoSqlServerDataReader
+                    .Get(BoxIndexNoSql.GeneratePartitionKey(leadCreateRequest.AuthInfo.BoxId)).FirstOrDefault();
+                tenantId = boxIndexNoSql.TenantId;
+
+                var campaignBox = _campaignBoxNoSqlServerDataReader
+                    .Get(CampaignBoxNoSql.GeneratePartitionKey(leadCreateRequest.AuthInfo.BoxId)).FirstOrDefault();
+
+
+                var campaignNoSql = _campaignNoSqlServerDataReader.Get(
+                    CampaignNoSql.GeneratePartitionKey(boxIndexNoSql.TenantId),
+                    CampaignNoSql.GenerateRowKey(campaignBox.CampaignId));
+
+                campaignId = campaignNoSql.Id;
+
+                var brandNoSql = _brandNoSqlServerDataReader.Get(BrandNoSql.GeneratePartitionKey(boxIndexNoSql.TenantId),
+                    BrandNoSql.GenerateRowKey(campaignNoSql.BrandId));
+
+                brandName = brandNoSql.Name;
+
+                var partner =
+                    _partnerNoSqlServerDataReader.Get(PartnerNoSql.GeneratePartitionKey(boxIndexNoSql.TenantId),
+                        PartnerNoSql.GenerateRowKey(leadCreateRequest.AuthInfo.AffiliateId));
+
+                partnerApiKey = partner.GeneralInfo.ApiKey;
+            }
+            catch (Exception e)
+            {
+                outTenantId = tenantId;
+                outBrandName = brandName;
+                outCampaignId = campaignId;
+                outPartnerApiKey = partnerApiKey;
+                return false;
+            }
+
+            outTenantId = tenantId;
+            outBrandName = brandName;
+            outCampaignId = campaignId;
+            outPartnerApiKey = partnerApiKey;
+            return true;
+        }
+
+        private bool IsPartnerRequestInvalid(string requestApiKey, string apiKey)
+        {
+            return !apiKey.Equals(requestApiKey, StringComparison.OrdinalIgnoreCase);
         }
 
         public async Task<Grpc.Models.Leads.LeadBrandInfo> BrandRegisterAsync(LeadEntity leadEntity, string brand)
@@ -244,7 +305,7 @@ namespace MarketingBox.Registration.Service.Services
             {
                 var leadEntity = await ctx.Leads.FirstOrDefaultAsync(x => x.LeadId == request.LeadId);
                 //TODO: Fix GetAsync
-                //return partnerEntity != null ? MapToGrpc(partnerEntity) : new LeadCreateResponse();
+                //return partnerEntity != null ? MapToGrpc(partnerEntity) : new IsPartnerRequestInvalid();
                 return leadEntity != null 
                     ? MapToGrpc(leadEntity, await BrandRegisterAsync(leadEntity, "Monfex GetAsync")) 
                     : new LeadCreateResponse();
