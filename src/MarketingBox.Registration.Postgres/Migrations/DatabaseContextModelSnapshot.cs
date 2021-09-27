@@ -48,6 +48,9 @@ namespace MarketingBox.Registration.Postgres.Migrations
                     b.Property<string>("Phone")
                         .HasColumnType("text");
 
+                    b.Property<long>("Sequence")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -56,6 +59,9 @@ namespace MarketingBox.Registration.Postgres.Migrations
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
+
+                    b.Property<string>("UniqueId")
+                        .HasColumnType("text");
 
                     b.HasKey("LeadId");
 

@@ -19,5 +19,6 @@ namespace MarketingBox.Registration.Postgres.Entities.Lead
         public LeadType Type { get; set; }
         public LeadStatus Status{ get; set; }
         public DateTime CreatedAt { get; set; }
+        public long Sequence { get; set; }
     }
 }

@@ -34,8 +34,7 @@ namespace MarketingBox.Registration.Service.Services
     {
         private readonly ILogger<LeadService> _logger;
         private readonly DbContextOptionsBuilder<DatabaseContext> _dbContextOptionsBuilder;
-        private readonly IPublisher<LeadBusRegistrationMessage> _publisherLeadCreated;
-        private readonly IPublisher<LeadBusUpdatedMessage> _publisherLeadUpdated;
+        private readonly IPublisher<LeadBusUpdateMessage> _publisherLeadUpdated;
         private readonly IMyNoSqlServerDataWriter<LeadNoSql> _myNoSqlServerDataWriter;
         private readonly IMyNoSqlServerDataReader<BoxIndexNoSql> _boxIndexNoSqlServerDataReader;
         private readonly IMyNoSqlServerDataReader<BrandNoSql> _brandNoSqlServerDataReader;
@@ -46,8 +45,7 @@ namespace MarketingBox.Registration.Service.Services
 
         public LeadService(ILogger<LeadService> logger,
             DbContextOptionsBuilder<DatabaseContext> dbContextOptionsBuilder,
-            IPublisher<LeadBusRegistrationMessage> publisherLeadCreated,
-            IPublisher<LeadBusUpdatedMessage> publisherLeadUpdated,
+            IPublisher<LeadBusUpdateMessage> publisherLeadUpdated,
             IMyNoSqlServerDataWriter<LeadNoSql> myNoSqlServerDataWriter,
             IMyNoSqlServerDataReader<BoxIndexNoSql> boxIndexNoSqlServerDataReader,
             IMyNoSqlServerDataReader<BrandNoSql> brandNoSqlServerDataReader,
@@ -58,7 +56,6 @@ namespace MarketingBox.Registration.Service.Services
         {
             _logger = logger;
             _dbContextOptionsBuilder = dbContextOptionsBuilder;
-            _publisherLeadCreated = publisherLeadCreated;
             _myNoSqlServerDataWriter = myNoSqlServerDataWriter;
             _publisherLeadUpdated = publisherLeadUpdated;
             _boxIndexNoSqlServerDataReader = boxIndexNoSqlServerDataReader;
@@ -111,6 +108,7 @@ namespace MarketingBox.Registration.Service.Services
                 Phone = request.GeneralInfo.Phone,
                 Status = LeadStatus.New,
                 Type = LeadType.Lead,
+                Sequence = 0,
                 BrandInfo = new Postgres.Entities.Lead.LeadBrandInfo()
                 {
                     
@@ -141,13 +139,15 @@ namespace MarketingBox.Registration.Service.Services
                 ctx.Leads.Add(leadEntity);
                 await ctx.SaveChangesAsync();
 
-                await _publisherLeadCreated.PublishAsync(MapToMessage(leadEntity));
+                await _publisherLeadUpdated.PublishAsync(MapToMessage(leadEntity, null));
                 _logger.LogInformation("Sent lead created to service bus {@context}", request);
 
                 await _myNoSqlServerDataWriter.InsertOrReplaceAsync(MapToNoSql(leadEntity));
                 _logger.LogInformation("Sent partner update to MyNoSql {@context}", request);
 
                 var brandInfo = await BrandRegisterAsync(leadEntity, brandName);
+
+                leadEntity.Sequence++;
 
                 await _publisherLeadUpdated.PublishAsync(MapToMessage(leadEntity, brandInfo));
                 _logger.LogInformation("Sent lead created to service bus {@context}", request);
@@ -394,55 +394,14 @@ namespace MarketingBox.Registration.Service.Services
             };
         }
 
-        private static LeadBusRegistrationMessage MapToMessage(LeadEntity leadEntity)
+        private static LeadBusUpdateMessage MapToMessage(LeadEntity leadEntity, Grpc.Models.Leads.LeadBrandInfo brandInfo)
         {
-            return new LeadBusRegistrationMessage()
+            return new LeadBusUpdateMessage()
             {
                 TenantId = leadEntity.TenantId,
                 LeadId = leadEntity.LeadId,
                 UniqueId = leadEntity.UniqueId,
-                GeneralInfo = new LeadBusGeneralInfo()
-                {
-                    Email = leadEntity.Email,
-                    FirstName = leadEntity.FirstName,
-                    LastName = leadEntity.LastName,
-                    Phone = leadEntity.Phone,
-                    Ip = leadEntity.Ip,
-                    Password = leadEntity.Password,
-                    CreatedAt = leadEntity.CreatedAt
-                },
-                AdditionalInfo = new LeadBusAdditionalInfo()
-                { 
-                    So = leadEntity.AdditionalInfo.So,
-                    Sub = leadEntity.AdditionalInfo.Sub,
-                    Sub1 = leadEntity.AdditionalInfo.Sub1,
-                    Sub2 = leadEntity.AdditionalInfo.Sub2,
-                    Sub3 = leadEntity.AdditionalInfo.Sub3,
-                    Sub4 = leadEntity.AdditionalInfo.Sub4,
-                    Sub5 = leadEntity.AdditionalInfo.Sub5,
-                    Sub6 = leadEntity.AdditionalInfo.Sub6,
-                    Sub7 = leadEntity.AdditionalInfo.Sub7,
-                    Sub8 = leadEntity.AdditionalInfo.Sub8,
-                    Sub9 = leadEntity.AdditionalInfo.Sub9,
-                    Sub10 = leadEntity.AdditionalInfo.Sub10,
-                },
-                RouteInfo = new LeadBusRouteInfo()
-                {
-                    AffiliateId = leadEntity.BrandInfo.AffiliateId,
-                    BoxId = leadEntity.BrandInfo.BoxId,
-                    Brand = leadEntity.BrandInfo.Brand,
-                    CampaignId = leadEntity.BrandInfo.CampaignId
-                }
-            };
-        }
-
-        private static LeadBusUpdatedMessage MapToMessage(LeadEntity leadEntity, Grpc.Models.Leads.LeadBrandInfo brandInfo)
-        {
-            return new LeadBusUpdatedMessage()
-            {
-                TenantId = leadEntity.TenantId,
-                LeadId = leadEntity.LeadId,
-                UniqueId = leadEntity.UniqueId,
+                Sequence = leadEntity.Sequence,
                 GeneralInfo = new LeadBusGeneralInfo()
                 {
                     Email = leadEntity.Email,
@@ -477,10 +436,10 @@ namespace MarketingBox.Registration.Service.Services
                 },
                 RegistrationInfo = new LeadBusBrandRegistrationInfo()
                 {
-                    Broker = brandInfo.Data.Broker,
-                    CustomerId = brandInfo.Data.CustomerId,
-                    LoginUrl = brandInfo.Data.LoginUrl,
-                    Token = brandInfo.Data.Token,
+                    Broker = brandInfo.Data != null ? brandInfo.Data.Broker : string.Empty,
+                    CustomerId = brandInfo.Data != null ? brandInfo.Data.CustomerId : string.Empty,
+                    LoginUrl = brandInfo.Data != null ? brandInfo.Data.LoginUrl : string.Empty,
+                    Token = brandInfo.Data != null ? brandInfo.Data.Token : string.Empty,
                 }
             };
         }
