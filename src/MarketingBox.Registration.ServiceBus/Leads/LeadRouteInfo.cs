@@ -1,21 +1,22 @@
 ﻿using System.Runtime.Serialization;
-using Destructurama.Attributed;
 
 namespace MarketingBox.Registration.Service.Messages.Leads
 {
     [DataContract]
-    public class LeadBusBrandRegistrationInfo
+    public class LeadRouteInfo
     {
         [DataMember(Order = 1)]
-        public string CustomerId { get; set; }
+        public long AffiliateId { get; set; }
 
         [DataMember(Order = 2)]
-        public string Token { get; set; }
+        public long BoxId { get; set; }
 
         [DataMember(Order = 3)]
-        public string LoginUrl { get; set; }
+        public long CampaignId { get; set; }
 
         [DataMember(Order = 4)]
-        public string Broker { get; set; }
+        public string Brand { get; set; }
     }
 }
+
+

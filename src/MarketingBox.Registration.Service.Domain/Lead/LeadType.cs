@@ -2,6 +2,7 @@
 {
     public enum LeadType
     {
+        Unsigned,
         Lead,
         Failure
     }

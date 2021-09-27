@@ -3,7 +3,7 @@
 namespace MarketingBox.Registration.Service.Messages.Leads
 {
     [DataContract]
-    public class LeadBusAdditionalInfo
+    public class LeadAdditionalInfo
     {
         [DataMember(Order = 1)]
         public string So { get; set; }

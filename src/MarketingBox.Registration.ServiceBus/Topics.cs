@@ -2,6 +2,6 @@
 {
     public class Topics
     {
-        public const string LeadBusUpdateTopic = "marketing-box-registration-service-lead-update";
+        public const string LeadUpdateTopic = "marketing-box-registration-service-lead-update";
     }
 }

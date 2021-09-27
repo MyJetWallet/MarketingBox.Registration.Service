@@ -1,6 +1,6 @@
 ﻿namespace MarketingBox.Registration.Service.MyNoSql.Leads
 {
-    public class LeadNoSqlAdditionalInfo
+    public class LeadAdditionalInfo
     {
         public string So { get; set; }
         public string Sub { get; set; }

@@ -5,7 +5,7 @@ using Destructurama.Attributed;
 namespace MarketingBox.Registration.Service.Messages.Leads
 {
     [DataContract]
-    public class LeadBusGeneralInfo
+    public class LeadGeneralInfo
     {
         [DataMember(Order = 1)]
         [LogMasked(PreserveLength = true, ShowFirst = 2, ShowLast = 2)]

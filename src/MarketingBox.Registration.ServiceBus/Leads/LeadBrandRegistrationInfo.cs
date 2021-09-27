@@ -3,20 +3,18 @@
 namespace MarketingBox.Registration.Service.Messages.Leads
 {
     [DataContract]
-    public class LeadBusRouteInfo
+    public class LeadBrandRegistrationInfo
     {
         [DataMember(Order = 1)]
-        public long AffiliateId { get; set; }
+        public string CustomerId { get; set; }
 
         [DataMember(Order = 2)]
-        public long BoxId { get; set; }
+        public string Token { get; set; }
 
         [DataMember(Order = 3)]
-        public long CampaignId { get; set; }
+        public string LoginUrl { get; set; }
 
         [DataMember(Order = 4)]
-        public string Brand { get; set; }
+        public string Broker { get; set; }
     }
 }
-
-

@@ -1,6 +1,6 @@
 ﻿namespace MarketingBox.Registration.Service.MyNoSql.Leads
 {
-    public class LeadNoSqlBrandInfo
+    public class LeadBrandInfo
     {
         public long AffiliateId { get; set; }
         public long CampaignId { get; set; }

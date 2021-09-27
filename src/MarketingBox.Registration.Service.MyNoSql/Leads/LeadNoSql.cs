@@ -11,19 +11,19 @@ namespace MarketingBox.Registration.Service.MyNoSql.Leads
 
         public long LeadId { get; set; }
         public string TenantId { get; set; }
-        public LeadNoSqlGeneralInfo NoSqlGeneralInfo { get; set; }
+        public LeadGeneralInfo GeneralInfo { get; set; }
 
         public static LeadNoSql Create(
             string tenantId,
             long leadId, 
-            LeadNoSqlGeneralInfo noSqlGeneralInfo) =>
+            LeadGeneralInfo generalInfo) =>
             new()
             {
                 
                 PartitionKey = GeneratePartitionKey(tenantId),
                 RowKey = GenerateRowKey(leadId),
                 LeadId = leadId,
-                NoSqlGeneralInfo = noSqlGeneralInfo,
+                GeneralInfo = generalInfo,
                 TenantId = tenantId,
                 
             };

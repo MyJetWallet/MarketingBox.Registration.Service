@@ -56,8 +56,8 @@ namespace MarketingBox.Registration.Service.Modules
 
             #region Leads
 
-            // publisher (IPublisher<LeadBusUpdateMessage>)
-            builder.RegisterMyServiceBusPublisher<LeadBusUpdateMessage>(serviceBusClient, Topics.LeadBusUpdateTopic, false);
+            // publisher (IPublisher<LeadUpdateMessage>)
+            builder.RegisterMyServiceBusPublisher<LeadUpdateMessage>(serviceBusClient, Topics.LeadUpdateTopic, false);
 
             // register writer (IMyNoSqlServerDataWriter<LeadNoSql>)
             builder.RegisterMyNoSqlWriter<LeadNoSql>(Program.ReloadedSettings(e => e.MyNoSqlWriterUrl), LeadNoSql.TableName);

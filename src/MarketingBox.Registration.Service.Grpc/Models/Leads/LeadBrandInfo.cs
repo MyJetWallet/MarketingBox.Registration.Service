@@ -1,4 +1,6 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
+using System.Transactions;
 
 namespace MarketingBox.Registration.Service.Grpc.Models.Leads
 {

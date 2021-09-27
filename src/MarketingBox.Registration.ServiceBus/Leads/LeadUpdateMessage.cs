@@ -3,7 +3,7 @@
 namespace MarketingBox.Registration.Service.Messages.Leads
 {
     [DataContract]
-    public class LeadBusUpdateMessage
+    public class LeadUpdateMessage
     {
         [DataMember(Order = 1)]
         public string TenantId { get; set; }
@@ -18,15 +18,15 @@ namespace MarketingBox.Registration.Service.Messages.Leads
         public long Sequence { get; set; }
 
         [DataMember(Order = 5)]
-        public LeadBusGeneralInfo GeneralInfo { get; set; }
+        public LeadGeneralInfo GeneralInfo { get; set; }
 
         [DataMember(Order = 6)]
-        public LeadBusRouteInfo RouteInfo { get; set; }
+        public LeadRouteInfo RouteInfo { get; set; }
 
         [DataMember(Order = 7)]
-        public LeadBusAdditionalInfo AdditionalInfo { get; set; }
+        public LeadAdditionalInfo AdditionalInfo { get; set; }
 
         [DataMember(Order = 8)]
-        public LeadBusBrandRegistrationInfo RegistrationInfo { get; set; }
+        public LeadBrandRegistrationInfo RegistrationInfo { get; set; }
     }
 }
