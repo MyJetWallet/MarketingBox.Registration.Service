@@ -237,12 +237,23 @@ namespace MarketingBox.Registration.Service.Services
             }
         }
 
+        private static Random random = new Random();
+        public static string RandomString(int length)
+        {
+            const string chars = "123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+
         public async Task<Grpc.Models.Leads.LeadBrandInfo> BrandRegisterAsync(LeadEntity leadEntity, string brand)
         {
             string brandLoginUrl = @"https://trading-test.handelpro.biz/lpLogin/6DB5D4818181B806DBF7B19EBDC5FD97F1B82759077317B6481BC883F071783DBEF568426B81DF43044E326C26437E097F21A2484110D13420E9EC6E44A1B2BE?lang=PL";
             string brandName = brand;
-            string brandCustomerId = "02537c06cab34f62931c263bf3480959";
-            string customerEmail = "yuriy.test.2020.09.22.01@mailinator.com";
+            var random = RandomString(5);
+            //string brandCustomerId = "02537c06cab34f62931c263bf3480959" + RandomString(5);
+            string brandCustomerId = "02537c06cab34f62931c263bf34." + random;
+            string customerEmail = "yuriy.test.2020.09." + random + "@mailinator.com";
             string brandToken = "6DB5D4818181B806DBF7B19EBDC5FD97F1B82759077317B6481BC883F071783DBEF568426B81DF43044E326C26437E097F21A2484110D13420E9EC6E44A1B2BE";
 
             var brandInfo = new Grpc.Models.Leads.LeadBrandInfo()
