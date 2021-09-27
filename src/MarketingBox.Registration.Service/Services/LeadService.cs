@@ -446,10 +446,10 @@ namespace MarketingBox.Registration.Service.Services
                 },
                 RegistrationInfo = new LeadBrandRegistrationInfo()
                 {
-                    Broker = brandInfo.Data != null ? brandInfo.Data.Broker : string.Empty,
-                    CustomerId = brandInfo.Data != null ? brandInfo.Data.CustomerId : string.Empty,
-                    LoginUrl = brandInfo.Data != null ? brandInfo.Data.LoginUrl : string.Empty,
-                    Token = brandInfo.Data != null ? brandInfo.Data.Token : string.Empty,
+                    Broker = brandInfo != null ? brandInfo.Data.Broker : string.Empty,
+                    CustomerId = brandInfo != null ? brandInfo.Data.CustomerId : string.Empty,
+                    LoginUrl = brandInfo != null ? brandInfo.Data.LoginUrl : string.Empty,
+                    Token = brandInfo != null ? brandInfo.Data.Token : string.Empty,
                 }
             };
         }
