@@ -1,12 +1,13 @@
 ﻿using Autofac;
 using MarketingBox.Affiliate.Service.Client;
+using MarketingBox.Affiliate.Service.Messages.Partners;
 using MarketingBox.Affiliate.Service.MyNoSql.Boxes;
 using MarketingBox.Affiliate.Service.MyNoSql.Brands;
 using MarketingBox.Affiliate.Service.MyNoSql.CampaignBoxes;
 using MarketingBox.Affiliate.Service.MyNoSql.Campaigns;
 using MarketingBox.Affiliate.Service.MyNoSql.Partners;
 using MarketingBox.Registration.Service.Messages;
-using MarketingBox.Registration.Service.Messages.Partners;
+using MarketingBox.Registration.Service.Messages.Leads;
 using MarketingBox.Registration.Service.MyNoSql.Leads;
 using MyJetWallet.Sdk.NoSql;
 using MyJetWallet.Sdk.Service;
@@ -56,10 +57,10 @@ namespace MarketingBox.Registration.Service.Modules
             #region Leads
 
             // publisher (IPublisher<LeadUpdated>)
-            builder.RegisterMyServiceBusPublisher<LeadUpdated>(serviceBusClient, Topics.LeadCreatedTopic, false);
+            builder.RegisterMyServiceBusPublisher<LeadBusRegistrationMessage>(serviceBusClient, Topics.LeadCreatedTopic, false);
 
             // publisher (IPublisher<PartnerRemoved>)
-            builder.RegisterMyServiceBusPublisher<PartnerRemoved>(serviceBusClient, Topics.LeadUpdatedTopic, false);
+            builder.RegisterMyServiceBusPublisher<LeadBusUpdatedMessage>(serviceBusClient, Topics.LeadUpdatedTopic, false);
 
             // register writer (IMyNoSqlServerDataWriter<LeadNoSql>)
             builder.RegisterMyNoSqlWriter<LeadNoSql>(Program.ReloadedSettings(e => e.MyNoSqlWriterUrl), LeadNoSql.TableName);

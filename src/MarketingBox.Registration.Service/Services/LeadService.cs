@@ -4,7 +4,6 @@ using MarketingBox.Registration.Service.Domain.Extensions;
 using MarketingBox.Registration.Service.Grpc;
 using MarketingBox.Registration.Service.Grpc.Models.Leads;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Messages;
-using MarketingBox.Registration.Service.Messages.Partners;
 using MarketingBox.Registration.Service.MyNoSql.Leads;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -13,6 +12,7 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using MarketingBox.Affiliate.Service.Messages.Partners;
 using MarketingBox.Affiliate.Service.MyNoSql.Boxes;
 using MarketingBox.Affiliate.Service.MyNoSql.Brands;
 using MarketingBox.Affiliate.Service.MyNoSql.CampaignBoxes;
@@ -22,6 +22,7 @@ using MarketingBox.Registration.Postgres.Entities.Lead;
 using MarketingBox.Registration.Service.Grpc.Models.Common;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Requests;
+using MarketingBox.Registration.Service.Messages.Leads;
 using Z.EntityFramework.Plus;
 using LeadBrandInfo = MarketingBox.Registration.Postgres.Entities.Lead.LeadBrandInfo;
 using LeadStatus = MarketingBox.Registration.Service.Domain.Lead.LeadStatus;
@@ -33,7 +34,8 @@ namespace MarketingBox.Registration.Service.Services
     {
         private readonly ILogger<LeadService> _logger;
         private readonly DbContextOptionsBuilder<DatabaseContext> _dbContextOptionsBuilder;
-        private readonly IPublisher<LeadUpdated> _publisherLeadUpdated;
+        private readonly IPublisher<LeadBusRegistrationMessage> _publisherLeadCreated;
+        private readonly IPublisher<LeadBusUpdatedMessage> _publisherLeadUpdated;
         private readonly IMyNoSqlServerDataWriter<LeadNoSql> _myNoSqlServerDataWriter;
         private readonly IMyNoSqlServerDataReader<BoxIndexNoSql> _boxIndexNoSqlServerDataReader;
         private readonly IMyNoSqlServerDataReader<BrandNoSql> _brandNoSqlServerDataReader;
@@ -42,13 +44,10 @@ namespace MarketingBox.Registration.Service.Services
         private readonly IMyNoSqlServerDataReader<CampaignBoxNoSql> _campaignBoxNoSqlServerDataReader;
         private readonly IMyNoSqlServerDataReader<PartnerNoSql> _partnerNoSqlServerDataReader;
 
-
-        private readonly IPublisher<PartnerRemoved> _publisherPartnerRemoved;
-
         public LeadService(ILogger<LeadService> logger,
             DbContextOptionsBuilder<DatabaseContext> dbContextOptionsBuilder,
-            IPublisher<LeadUpdated> publisherLeadUpdated,
-            IPublisher<PartnerRemoved> publisherPartnerRemoved,
+            IPublisher<LeadBusRegistrationMessage> publisherLeadCreated,
+            IPublisher<LeadBusUpdatedMessage> publisherLeadUpdated,
             IMyNoSqlServerDataWriter<LeadNoSql> myNoSqlServerDataWriter,
             IMyNoSqlServerDataReader<BoxIndexNoSql> boxIndexNoSqlServerDataReader,
             IMyNoSqlServerDataReader<BrandNoSql> brandNoSqlServerDataReader,
@@ -59,9 +58,9 @@ namespace MarketingBox.Registration.Service.Services
         {
             _logger = logger;
             _dbContextOptionsBuilder = dbContextOptionsBuilder;
-            _publisherLeadUpdated = publisherLeadUpdated;
+            _publisherLeadCreated = publisherLeadCreated;
             _myNoSqlServerDataWriter = myNoSqlServerDataWriter;
-            _publisherPartnerRemoved = publisherPartnerRemoved;
+            _publisherLeadUpdated = publisherLeadUpdated;
             _boxIndexNoSqlServerDataReader = boxIndexNoSqlServerDataReader;
             _brandNoSqlServerDataReader = brandNoSqlServerDataReader;
             _boxNoSqlServerDataReader = boxNoSqlServerDataReader;
@@ -102,6 +101,7 @@ namespace MarketingBox.Registration.Service.Services
             var leadEntity = new LeadEntity()
             {
                 TenantId = tenantId,
+                UniqueId = UniqueIdGenerator.GetNextId(),
                 CreatedAt = request.GeneralInfo.CreatedAt,
                 FirstName = request.GeneralInfo.FirstName,
                 LastName = request.GeneralInfo.LastName,
@@ -111,13 +111,28 @@ namespace MarketingBox.Registration.Service.Services
                 Phone = request.GeneralInfo.Phone,
                 Status = LeadStatus.New,
                 Type = LeadType.Lead,
-                BrandInfo = new LeadBrandInfo()
+                BrandInfo = new Postgres.Entities.Lead.LeadBrandInfo()
                 {
                     
                     AffiliateId = request.AuthInfo.AffiliateId,
                     BoxId = request.AuthInfo.BoxId,
                     Brand = brandName,
                     CampaignId = campaignId
+                },
+                AdditionalInfo = new Postgres.Entities.Lead.LeadAdditionalInfo()
+                {
+                    So = request.AdditionalInfo.So,
+                    Sub = request.AdditionalInfo.Sub,
+                    Sub1 = request.AdditionalInfo.Sub1,
+                    Sub2 = request.AdditionalInfo.Sub2,
+                    Sub3 = request.AdditionalInfo.Sub3,
+                    Sub4 = request.AdditionalInfo.Sub4,
+                    Sub5 = request.AdditionalInfo.Sub5,
+                    Sub6 = request.AdditionalInfo.Sub6,
+                    Sub7 = request.AdditionalInfo.Sub7,
+                    Sub8 = request.AdditionalInfo.Sub8,
+                    Sub9 = request.AdditionalInfo.Sub9,
+                    Sub10 = request.AdditionalInfo.Sub10,
                 }
             };
 
@@ -126,14 +141,17 @@ namespace MarketingBox.Registration.Service.Services
                 ctx.Leads.Add(leadEntity);
                 await ctx.SaveChangesAsync();
 
-                //await _publisherLeadUpdated.PublishAsync(MapToMessage(leadEntity));
-                //_logger.LogInformation("Sent partner update to service bus {@context}", request);
+                await _publisherLeadCreated.PublishAsync(MapToMessage(leadEntity));
+                _logger.LogInformation("Sent lead created to service bus {@context}", request);
 
-                //var nosql = MapToNoSql(leadEntity);
-                //await _myNoSqlServerDataWriter.InsertOrReplaceAsync(nosql);
-                //_logger.LogInformation("Sent partner update to MyNoSql {@context}", request);
+                await _myNoSqlServerDataWriter.InsertOrReplaceAsync(MapToNoSql(leadEntity));
+                _logger.LogInformation("Sent partner update to MyNoSql {@context}", request);
 
                 var brandInfo = await BrandRegisterAsync(leadEntity, brandName);
+
+                await _publisherLeadUpdated.PublishAsync(MapToMessage(leadEntity, brandInfo));
+                _logger.LogInformation("Sent lead created to service bus {@context}", request);
+
 
                 return MapToGrpc(leadEntity, brandInfo);
             }
@@ -201,6 +219,14 @@ namespace MarketingBox.Registration.Service.Services
             return !apiKey.Equals(requestApiKey, StringComparison.OrdinalIgnoreCase);
         }
 
+        public static class UniqueIdGenerator
+        {
+            public static string GetNextId()
+            {
+                return Guid.NewGuid().ToString();
+            }
+        }
+
         public async Task<Grpc.Models.Leads.LeadBrandInfo> BrandRegisterAsync(LeadEntity leadEntity, string brand)
         {
             string brandLoginUrl = @"https://trading-test.handelpro.biz/lpLogin/6DB5D4818181B806DBF7B19EBDC5FD97F1B82759077317B6481BC883F071783DBEF568426B81DF43044E326C26437E097F21A2484110D13420E9EC6E44A1B2BE?lang=PL";
@@ -239,7 +265,7 @@ namespace MarketingBox.Registration.Service.Services
                 {
                     //CreatedAt = DateTime.UtcNow,
                     //Skype = request.BrandInfo.Skype,
-                    //Type = request.BrandInfo.Type.MapEnum<Domain.Lead.LeadType>(),
+                    //Type = request.BrandInfo.Type.MapEnum<Domain.Lead.LeadBusType>(),
                     //Username = request.BrandInfo.Username,
                     //ZipCode = request.BrandInfo.ZipCode,
                     //Email = request.BrandInfo.Email,
@@ -263,7 +289,7 @@ namespace MarketingBox.Registration.Service.Services
                     {
                         //CreatedAt = DateTime.UtcNow,
                         //Skype = request.BrandInfo.Skype,
-                        //Type = request.BrandInfo.Type.MapEnum<Domain.Lead.LeadType>(),
+                        //Type = request.BrandInfo.Type.MapEnum<Domain.Lead.LeadBusType>(),
                         //Username = request.BrandInfo.Username,
                         //ZipCode = request.BrandInfo.ZipCode,
                         //Email = request.BrandInfo.Email,
@@ -278,7 +304,7 @@ namespace MarketingBox.Registration.Service.Services
                     throw new Exception("Update failed");
                 }
 
-                //await _publisherLeadUpdated.PublishAsync(MapToMessage(partnerEntity));
+                //await _publisherLeadCreated.PublishAsync(MapToMessage(partnerEntity));
                 //_logger.LogInformation("Sent lead update to service bus {@context}", request);
 
                 //var nosql = MapToNoSql(partnerEntity);
@@ -330,12 +356,12 @@ namespace MarketingBox.Registration.Service.Services
                 if (partnerEntity == null)
                     return new LeadCreateResponse();
 
-                await _publisherPartnerRemoved.PublishAsync(new PartnerRemoved()
-                {
-                    AffiliateId = partnerEntity.LeadId,
-                    //Sequence = partnerEntity.Sequence,
-                    TenantId = partnerEntity.TenantId
-                });
+                //await _publisherLeadUpdated.PublishAsync(new PartnerRemoved()
+                //{
+                //    AffiliateId = partnerEntity.LeadId,
+                //    //Sequence = partnerEntity.Sequence,
+                //    TenantId = partnerEntity.TenantId
+                //});
 
                 await _myNoSqlServerDataWriter.DeleteAsync(
                     LeadNoSql.GeneratePartitionKey(partnerEntity.TenantId),
@@ -368,23 +394,93 @@ namespace MarketingBox.Registration.Service.Services
             };
         }
 
-        private static LeadUpdated MapToMessage(LeadEntity leadEntity)
+        private static LeadBusRegistrationMessage MapToMessage(LeadEntity leadEntity)
         {
-            return new LeadUpdated()
+            return new LeadBusRegistrationMessage()
             {
                 TenantId = leadEntity.TenantId,
-                AffiliateId = leadEntity.LeadId,
-                GeneralInfo = new Messages.Partners.PartnerGeneralInfo()
+                LeadId = leadEntity.LeadId,
+                UniqueId = leadEntity.UniqueId,
+                GeneralInfo = new LeadBusGeneralInfo()
                 {
-                    //CreatedAt = leadEntity.BrandInfo.CreatedAt.UtcDateTime,
-                    //Email = leadEntity.BrandInfo.Email,
-                    ////Password = leadEntity.BrandInfo.Password,
-                    //Phone = leadEntity.BrandInfo.Phone,
-                    //Role = leadEntity.BrandInfo.Role.MapEnum<Messages.Partners.PartnerRole>(),
-                    //Skype = leadEntity.BrandInfo.Skype,
-                    //Type = leadEntity.BrandInfo.Type.MapEnum<Messages.Partners.PartnerState>(),
-                    //Username = leadEntity.BrandInfo.Username,
-                    //ZipCode = leadEntity.BrandInfo.ZipCode
+                    Email = leadEntity.Email,
+                    FirstName = leadEntity.FirstName,
+                    LastName = leadEntity.LastName,
+                    Phone = leadEntity.Phone,
+                    Ip = leadEntity.Ip,
+                    Password = leadEntity.Password,
+                    CreatedAt = leadEntity.CreatedAt
+                },
+                AdditionalInfo = new LeadBusAdditionalInfo()
+                { 
+                    So = leadEntity.AdditionalInfo.So,
+                    Sub = leadEntity.AdditionalInfo.Sub,
+                    Sub1 = leadEntity.AdditionalInfo.Sub1,
+                    Sub2 = leadEntity.AdditionalInfo.Sub2,
+                    Sub3 = leadEntity.AdditionalInfo.Sub3,
+                    Sub4 = leadEntity.AdditionalInfo.Sub4,
+                    Sub5 = leadEntity.AdditionalInfo.Sub5,
+                    Sub6 = leadEntity.AdditionalInfo.Sub6,
+                    Sub7 = leadEntity.AdditionalInfo.Sub7,
+                    Sub8 = leadEntity.AdditionalInfo.Sub8,
+                    Sub9 = leadEntity.AdditionalInfo.Sub9,
+                    Sub10 = leadEntity.AdditionalInfo.Sub10,
+                },
+                RouteInfo = new LeadBusRouteInfo()
+                {
+                    AffiliateId = leadEntity.BrandInfo.AffiliateId,
+                    BoxId = leadEntity.BrandInfo.BoxId,
+                    Brand = leadEntity.BrandInfo.Brand,
+                    CampaignId = leadEntity.BrandInfo.CampaignId
+                }
+            };
+        }
+
+        private static LeadBusUpdatedMessage MapToMessage(LeadEntity leadEntity, Grpc.Models.Leads.LeadBrandInfo brandInfo)
+        {
+            return new LeadBusUpdatedMessage()
+            {
+                TenantId = leadEntity.TenantId,
+                LeadId = leadEntity.LeadId,
+                UniqueId = leadEntity.UniqueId,
+                GeneralInfo = new LeadBusGeneralInfo()
+                {
+                    Email = leadEntity.Email,
+                    FirstName = leadEntity.FirstName,
+                    LastName = leadEntity.LastName,
+                    Phone = leadEntity.Phone,
+                    Ip = leadEntity.Ip,
+                    Password = leadEntity.Password,
+                    CreatedAt = leadEntity.CreatedAt
+                },
+                AdditionalInfo = new LeadBusAdditionalInfo()
+                {
+                    So = leadEntity.AdditionalInfo.So,
+                    Sub = leadEntity.AdditionalInfo.Sub,
+                    Sub1 = leadEntity.AdditionalInfo.Sub1,
+                    Sub2 = leadEntity.AdditionalInfo.Sub2,
+                    Sub3 = leadEntity.AdditionalInfo.Sub3,
+                    Sub4 = leadEntity.AdditionalInfo.Sub4,
+                    Sub5 = leadEntity.AdditionalInfo.Sub5,
+                    Sub6 = leadEntity.AdditionalInfo.Sub6,
+                    Sub7 = leadEntity.AdditionalInfo.Sub7,
+                    Sub8 = leadEntity.AdditionalInfo.Sub8,
+                    Sub9 = leadEntity.AdditionalInfo.Sub9,
+                    Sub10 = leadEntity.AdditionalInfo.Sub10,
+                },
+                RouteInfo = new LeadBusRouteInfo()
+                {
+                    AffiliateId = leadEntity.BrandInfo.AffiliateId,
+                    BoxId = leadEntity.BrandInfo.BoxId,
+                    Brand = leadEntity.BrandInfo.Brand,
+                    CampaignId = leadEntity.BrandInfo.CampaignId
+                },
+                RegistrationInfo = new LeadBusBrandRegistrationInfo()
+                {
+                    Broker = brandInfo.Data.Broker,
+                    CustomerId = brandInfo.Data.CustomerId,
+                    LoginUrl = brandInfo.Data.LoginUrl,
+                    Token = brandInfo.Data.Token,
                 }
             };
         }
@@ -394,11 +490,12 @@ namespace MarketingBox.Registration.Service.Services
             return LeadNoSql.Create(
                 leadEntity.TenantId,
                 leadEntity.LeadId,
-                new MyNoSql.Leads.LeadGeneralInfo()
+                new MyNoSql.Leads.LeadNoSqlGeneralInfo()
                 {
-                    CreatedAt = leadEntity.CreatedAt,
-                    Email = leadEntity.Email,
-                    Username = leadEntity.FirstName + " " + leadEntity.LastName
+                    //CreatedAt = leadEntity.CreatedAt,
+                    //Email = leadEntity.Email,
+                    
+                    //Username = leadEntity.FirstName + " " + leadEntity.LastName
                 }
                 );
         }

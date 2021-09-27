@@ -23,4 +23,8 @@
     <PackageReference Include="MyNoSqlServer.DataWriter" Version="1.3.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MarketingBox.Registration.Service.Domain\MarketingBox.Registration.Service.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

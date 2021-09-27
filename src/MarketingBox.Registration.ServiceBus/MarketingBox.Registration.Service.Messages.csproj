@@ -17,8 +17,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Destructurama.Attributed" Version="2.0.0" />
     <PackageReference Include="MyJetWallet.Sdk.Service" Version="1.5.5" />
     <PackageReference Include="MyJetWallet.Sdk.ServiceBus" Version="1.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MarketingBox.Registration.Service.Domain\MarketingBox.Registration.Service.Domain.csproj" />
   </ItemGroup>
 
 </Project>
