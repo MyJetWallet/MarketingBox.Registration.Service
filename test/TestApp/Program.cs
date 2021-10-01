@@ -20,13 +20,13 @@ namespace TestApp
 
             var factory = new RegistrationServiceClientFactory("http://localhost:12347");
             var client = factory.GetPartnerService();
-
-            var check = await client.GetAsync(new LeadGetRequest()
+            var testTenant = "Test-Tenant";
+            var check = await client.CreateAsync(new LeadCreateRequest()
             {
-                LeadId = 0,
+                TenantId = testTenant,
             });
 
-            var testTenant = "Test-Tenant";
+
             var request = new LeadCreateRequest()
             {
                 TenantId = testTenant,

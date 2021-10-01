@@ -6,6 +6,7 @@ using MarketingBox.Affiliate.Service.MyNoSql.Brands;
 using MarketingBox.Affiliate.Service.MyNoSql.CampaignBoxes;
 using MarketingBox.Affiliate.Service.MyNoSql.Campaigns;
 using MarketingBox.Affiliate.Service.MyNoSql.Partners;
+using MarketingBox.Integration.Service.Client;
 using MarketingBox.Registration.Service.Messages;
 using MarketingBox.Registration.Service.Messages.Leads;
 using MarketingBox.Registration.Service.MyNoSql.Leads;
@@ -52,7 +53,7 @@ namespace MarketingBox.Registration.Service.Modules
             builder.RegisterInstance(partner)
                 .As<IMyNoSqlServerDataReader<PartnerNoSql>>();
 
-            builder.RegisterAffiliateServiceClient(Program.Settings.AffiliateServiceUrl);
+            builder.RegisterIntegrationServiceClient(Program.Settings.IntegrationServiceUrl);
 
             #region Leads
 

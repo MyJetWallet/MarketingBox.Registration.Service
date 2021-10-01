@@ -11,8 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\MarketingBox.Registration.Postgres\MarketingBox.Registration.Postgres.csproj" />
     <ProjectReference Include="..\..\src\MarketingBox.Registration.Service.Client\MarketingBox.Registration.Service.Client.csproj" />
     <ProjectReference Include="..\..\src\MarketingBox.Registration.Service.Grpc\MarketingBox.Registration.Service.Grpc.csproj" />
+    <ProjectReference Include="..\..\src\MarketingBox.Registration.Service\MarketingBox.Registration.Service.csproj" />
   </ItemGroup>
 
 </Project>

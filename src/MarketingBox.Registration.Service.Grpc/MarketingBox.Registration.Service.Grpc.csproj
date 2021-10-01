@@ -9,6 +9,10 @@
     <PackageReference Include="System.ServiceModel.Primitives" Version="4.8.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MarketingBox.Registration.Service.Domain\MarketingBox.Registration.Service.Domain.csproj" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetsForTfmSpecificBuildOutput>
       $(TargetsForTfmSpecificBuildOutput);PackReferencedProjectOutputs

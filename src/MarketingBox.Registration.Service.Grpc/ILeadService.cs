@@ -13,13 +13,13 @@ namespace MarketingBox.Registration.Service.Grpc
         [OperationContract]
         Task<LeadCreateResponse> CreateAsync(LeadCreateRequest request);
 
-        [OperationContract]
-        Task<LeadCreateResponse> UpdateAsync(LeadUpdateRequest request);
+        //[OperationContract]
+        //Task<LeadCreateResponse> UpdateAsync(LeadUpdateRequest request);
 
-        [OperationContract]
-        Task<LeadCreateResponse> GetAsync(LeadGetRequest request);
+        //[OperationContract]
+        //Task<LeadCreateResponse> GetAsync(LeadGetRequest request);
 
-        [OperationContract]
-        Task<LeadCreateResponse> DeleteAsync(LeadDeleteRequest request);
+        //[OperationContract]
+        //Task<LeadCreateResponse> DeleteAsync(LeadDeleteRequest request);
     }
 }

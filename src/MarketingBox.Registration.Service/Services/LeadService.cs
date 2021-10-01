@@ -18,6 +18,8 @@ using MarketingBox.Affiliate.Service.MyNoSql.Brands;
 using MarketingBox.Affiliate.Service.MyNoSql.CampaignBoxes;
 using MarketingBox.Affiliate.Service.MyNoSql.Campaigns;
 using MarketingBox.Affiliate.Service.MyNoSql.Partners;
+using MarketingBox.Integration.Service.Grpc;
+using MarketingBox.Integration.Service.Grpc.Models.Leads;
 using MarketingBox.Registration.Postgres.Entities.Lead;
 using MarketingBox.Registration.Service.Extensions;
 using MarketingBox.Registration.Service.Grpc.Models.Common;
@@ -48,6 +50,7 @@ namespace MarketingBox.Registration.Service.Services
         private readonly IMyNoSqlServerDataReader<CampaignNoSql> _campaignNoSqlServerDataReader;
         private readonly IMyNoSqlServerDataReader<CampaignBoxNoSql> _campaignBoxNoSqlServerDataReader;
         private readonly IMyNoSqlServerDataReader<PartnerNoSql> _partnerNoSqlServerDataReader;
+        private readonly IIntegrationService _integrationService;
 
         public LeadService(ILogger<LeadService> logger,
             DbContextOptionsBuilder<DatabaseContext> dbContextOptionsBuilder,
@@ -58,7 +61,8 @@ namespace MarketingBox.Registration.Service.Services
             IMyNoSqlServerDataReader<BoxNoSql> boxNoSqlServerDataReader,
             IMyNoSqlServerDataReader<CampaignNoSql> campaignNoSqlServerDataReader,
             IMyNoSqlServerDataReader<CampaignBoxNoSql> campaignBoxNoSqlServerDataReader,
-            IMyNoSqlServerDataReader<PartnerNoSql> partnerNoSqlServerDataReader)
+            IMyNoSqlServerDataReader<PartnerNoSql> partnerNoSqlServerDataReader,
+            IIntegrationService integrationService)
         {
             _logger = logger;
             _dbContextOptionsBuilder = dbContextOptionsBuilder;
@@ -69,8 +73,9 @@ namespace MarketingBox.Registration.Service.Services
             _boxNoSqlServerDataReader = boxNoSqlServerDataReader;
             _campaignNoSqlServerDataReader = campaignNoSqlServerDataReader;
             _campaignBoxNoSqlServerDataReader = campaignBoxNoSqlServerDataReader;
-            _partnerNoSqlServerDataReader = partnerNoSqlServerDataReader;
-        }
+            _partnerNoSqlServerDataReader = partnerNoSqlServerDataReader; 
+            _integrationService = integrationService;
+    }
 
         public async Task<LeadCreateResponse> CreateAsync(LeadCreateRequest request)
         {
@@ -156,7 +161,7 @@ namespace MarketingBox.Registration.Service.Services
                 leadEntity.Sequence++;
                 leadEntity.Type = brandInfo.Status.IsSuccess() ?
                     LeadType.Lead : leadEntity.Type = LeadType.Failure;
-                
+
                 await _publisherLeadUpdated.PublishAsync(MapToMessage(leadEntity, brandInfo));
                 _logger.LogInformation("Sent lead created to service bus {@context}", request);
 
@@ -248,156 +253,25 @@ namespace MarketingBox.Registration.Service.Services
 
         public async Task<Grpc.Models.Leads.LeadBrandInfo> BrandRegisterAsync(LeadEntity leadEntity, string brand)
         {
-            string brandLoginUrl = @"https://trading-test.handelpro.biz/lpLogin/6DB5D4818181B806DBF7B19EBDC5FD97F1B82759077317B6481BC883F071783DBEF568426B81DF43044E326C26437E097F21A2484110D13420E9EC6E44A1B2BE?lang=PL";
-            string brandName = brand;
-            var random = RandomString(5);
-            //string brandCustomerId = "02537c06cab34f62931c263bf3480959" + RandomString(5);
-            string brandCustomerId = "02537c06cab34f62931c263bf34." + random;
-            string customerEmail = "yuriy.test.2020.09." + random + "@mailinator.com";
-            string brandToken = "6DB5D4818181B806DBF7B19EBDC5FD97F1B82759077317B6481BC883F071783DBEF568426B81DF43044E326C26437E097F21A2484110D13420E9EC6E44A1B2BE";
+            var request = leadEntity.CreateIntegrationRequest();
+            var response = await _integrationService.RegisterLeadAsync(request);
 
             var brandInfo = new Grpc.Models.Leads.LeadBrandInfo()
             {
-                Status = "successful",
+                Status = response.Status,
                 Data = new Grpc.Models.Leads.LeadBrandRegistrationInfo()
                 {
-                    Email = customerEmail, //leadEntity.Email,
+                    Email = leadEntity.Email,
                     UniqueId = leadEntity.LeadId.ToString(),
-                    LoginUrl = brandLoginUrl,
-                    Broker = brandName,
-                    CustomerId = brandCustomerId,
-                    Token = brandToken
+                    LoginUrl = response.RegistrationCustomerInfo.LoginUrl,
+                    //TODO: Remove broker
+                    Broker = leadEntity.BrandInfo.Brand,
+                    CustomerId = response.RegistrationCustomerInfo.CustomerId,
+                    Token = response.RegistrationCustomerInfo.Token
                 }
             };
-            await Task.Delay(1000);
+
             return brandInfo;
-        }
-
-        public async Task<LeadCreateResponse> UpdateAsync(LeadUpdateRequest request)
-        {
-            _logger.LogInformation("Updating a Lead {@context}", request);
-            using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
-
-            var leadEntity = new LeadEntity()
-            {
-                LeadId = request.LeadId,
-                TenantId = request.TenantId,
-                BrandInfo = new LeadBrandInfo()
-                {
-                    //CreatedAt = DateTime.UtcNow,
-                    //Skype = request.BrandInfo.Skype,
-                    //Type = request.BrandInfo.Type.MapEnum<Domain.Lead.LeadBusType>(),
-                    //Username = request.BrandInfo.Username,
-                    //ZipCode = request.BrandInfo.ZipCode,
-                    //Email = request.BrandInfo.Email,
-                    //Password = request.BrandInfo.Password,
-                    //Phone = request.BrandInfo.Phone
-                },
-                //Sequence = request.Sequence
-            };
-
-            try
-            {
-                var affectedRowsCount = await ctx.Leads
-                .Where(x => x.LeadId == request.LeadId 
-                            //&& x.Sequence <= request.Sequence
-                        )
-                .UpdateAsync(x => new LeadEntity()
-                {
-                    LeadId = request.LeadId,
-                    TenantId = request.TenantId,
-                    BrandInfo = new LeadBrandInfo()
-                    {
-                        //CreatedAt = DateTime.UtcNow,
-                        //Skype = request.BrandInfo.Skype,
-                        //Type = request.BrandInfo.Type.MapEnum<Domain.Lead.LeadBusType>(),
-                        //Username = request.BrandInfo.Username,
-                        //ZipCode = request.BrandInfo.ZipCode,
-                        //Email = request.BrandInfo.Email,
-                        //Password = request.BrandInfo.Password,
-                        //Phone = request.BrandInfo.Phone
-                    },
-                    //Sequence = request.Sequence
-                });
-
-                if (affectedRowsCount != 1)
-                {
-                    throw new Exception("Update failed");
-                }
-
-                //await _publisherLeadCreated.PublishAsync(MapToMessage(partnerEntity));
-                //_logger.LogInformation("Sent lead update to service bus {@context}", request);
-
-                //var nosql = MapToNoSql(partnerEntity);
-                //await _myNoSqlServerDataWriter.InsertOrReplaceAsync(nosql);
-                //_logger.LogInformation("Sent lead update to MyNoSql {@context}", request);
-
-                var brandInfo = await BrandRegisterAsync(leadEntity, "Monfex UpdateAsync");
-
-                return MapToGrpc(leadEntity, brandInfo);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error updating lead {@context}", request);
-
-                return new LeadCreateResponse() { Error = new Error() { Message = "Internal error", Type = ErrorType.Unknown } };
-            }
-        }
-
-        public async Task<LeadCreateResponse> GetAsync(LeadGetRequest request)
-        {
-            using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
-
-            try
-            {
-                var leadEntity = await ctx.Leads.FirstOrDefaultAsync(x => x.LeadId == request.LeadId);
-                //TODO: Fix GetAsync
-                //return partnerEntity != null ? MapToGrpc(partnerEntity) : new IsPartnerRequestInvalid();
-                return leadEntity != null 
-                    ? MapToGrpc(leadEntity, await BrandRegisterAsync(leadEntity, "Monfex GetAsync")) 
-                    : new LeadCreateResponse();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error getting lead {@context}", request);
-
-                return new LeadCreateResponse() { Error = new Error() { Message = "Internal error", Type = ErrorType.Unknown } };
-            }
-        }
-
-        public async Task<LeadCreateResponse> DeleteAsync(LeadDeleteRequest request)
-        {
-            using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
-
-            try
-            {
-
-                var partnerEntity = await ctx.Leads.FirstOrDefaultAsync(x => x.LeadId == request.LeadId);
-
-                if (partnerEntity == null)
-                    return new LeadCreateResponse();
-
-                //await _publisherLeadUpdated.PublishAsync(new PartnerRemoved()
-                //{
-                //    AffiliateId = partnerEntity.LeadId,
-                //    //Sequence = partnerEntity.Sequence,
-                //    TenantId = partnerEntity.TenantId
-                //});
-
-                await _myNoSqlServerDataWriter.DeleteAsync(
-                    LeadNoSql.GeneratePartitionKey(partnerEntity.TenantId),
-                    LeadNoSql.GenerateRowKey(partnerEntity.LeadId));
-
-                await ctx.Leads.Where(x => x.LeadId == partnerEntity.LeadId).DeleteAsync();
-
-                return new LeadCreateResponse();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error deleting lead {@context}", request);
-
-                return new LeadCreateResponse() { Error = new Error() { Message = "Internal error", Type = ErrorType.Unknown } };
-            }
         }
 
         private static LeadCreateResponse MapToGrpc(LeadEntity leadEntity, 
@@ -415,7 +289,7 @@ namespace MarketingBox.Registration.Service.Services
             };
         }
 
-        private static LeadUpdateMessage MapToMessage(LeadEntity leadEntity, Grpc.Models.Leads.LeadBrandInfo brandInfo)
+        public static LeadUpdateMessage MapToMessage(LeadEntity leadEntity, Grpc.Models.Leads.LeadBrandInfo brandInfo)
         {
             return new LeadUpdateMessage()
             {
