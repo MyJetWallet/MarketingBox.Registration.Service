@@ -82,7 +82,7 @@ namespace MarketingBox.Registration.Service.Services
             _logger.LogInformation("Creating new Lead {@context}", request);
             using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
-            if (!TryGetPartnerInfo(request, out var tenantId, out var brandName, out var campaignId, out var apiKey))
+            if (!TryGetPartnerInfo(request, out var tenantId, out var brandName, out var campaignId, out var apiKey, out var brandId))
             {
                 return LeadCreateResponse.Failed(
                     new Error()
@@ -122,11 +122,11 @@ namespace MarketingBox.Registration.Service.Services
                 Sequence = 0,
                 BrandInfo = new Postgres.Entities.Lead.LeadBrandInfo()
                 {
-                    
                     AffiliateId = request.AuthInfo.AffiliateId,
                     BoxId = request.AuthInfo.BoxId,
                     Brand = brandName,
-                    CampaignId = campaignId
+                    CampaignId = campaignId,
+                    //BrandId = brandId,
                 },
                 AdditionalInfo = new Postgres.Entities.Lead.LeadAdditionalInfo()
                 {
@@ -156,7 +156,7 @@ namespace MarketingBox.Registration.Service.Services
                 await _myNoSqlServerDataWriter.InsertOrReplaceAsync(MapToNoSql(leadEntity));
                 _logger.LogInformation("Sent partner update to MyNoSql {@context}", request);
 
-                var brandInfo = await BrandRegisterAsync(leadEntity, brandName);
+                var brandInfo = await BrandRegisterAsync(leadEntity, brandId);
                 
                 leadEntity.Sequence++;
                 leadEntity.Type = brandInfo.Status.IsSuccess() ?
@@ -181,11 +181,12 @@ namespace MarketingBox.Registration.Service.Services
         }
 
         private bool TryGetPartnerInfo(LeadCreateRequest leadCreateRequest, out string outTenantId,
-            out string outBrandName, out long outCampaignId, out string outPartnerApiKey)
+            out string outBrandName, out long outCampaignId, out string outPartnerApiKey, out long outBrandId)
         {
             string tenantId = string.Empty;
             string brandName = string.Empty;
             long campaignId = 0;
+            long brandId = 0;
             string partnerApiKey = string.Empty;
             bool retValue = true;
 
@@ -209,6 +210,7 @@ namespace MarketingBox.Registration.Service.Services
                     BrandNoSql.GenerateRowKey(campaignNoSql.BrandId));
 
                 brandName = brandNoSql.Name;
+                brandId = brandNoSql.BrandId;
 
                 var partner =
                     _partnerNoSqlServerDataReader.Get(PartnerNoSql.GeneratePartitionKey(boxIndexNoSql.TenantId),
@@ -226,6 +228,7 @@ namespace MarketingBox.Registration.Service.Services
             outBrandName = brandName;
             outCampaignId = campaignId;
             outPartnerApiKey = partnerApiKey;
+            outBrandId = brandId;
             return retValue;
         }
 
@@ -251,9 +254,9 @@ namespace MarketingBox.Registration.Service.Services
         }
 
 
-        public async Task<Grpc.Models.Leads.LeadBrandInfo> BrandRegisterAsync(LeadEntity leadEntity, string brand)
+        public async Task<Grpc.Models.Leads.LeadBrandInfo> BrandRegisterAsync(LeadEntity leadEntity, long brandId)
         {
-            var request = leadEntity.CreateIntegrationRequest();
+            var request = leadEntity.CreateIntegrationRequest(brandId);
             var response = await _integrationService.RegisterLeadAsync(request);
 
             var brandInfo = new Grpc.Models.Leads.LeadBrandInfo()
@@ -267,7 +270,7 @@ namespace MarketingBox.Registration.Service.Services
                     //TODO: Remove broker
                     Broker = leadEntity.BrandInfo.Brand,
                     CustomerId = response.RegistrationCustomerInfo.CustomerId,
-                    Token = response.RegistrationCustomerInfo.Token
+                    Token = response.RegistrationCustomerInfo.Token,
                 }
             };
 

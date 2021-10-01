@@ -61,13 +61,15 @@ namespace MarketingBox.Registration.Service.Extensions
         }
 
         public static RegistrationLeadRequest CreateIntegrationRequest(
-            this LeadEntity leadEntity)
+            this LeadEntity leadEntity, long brandId)
         {
             return new RegistrationLeadRequest()
             {
                 TenantId = leadEntity.TenantId,
                 LeadId = leadEntity.LeadId,
                 LeadUniqueId = leadEntity.UniqueId,
+                BrandName = leadEntity.BrandInfo.Brand,
+                BrandId = brandId,//leadEntity.BrandInfo.BrandId,
                 Info = new RegistrationLeadInfo()
                 {
                     FirstName = leadEntity.FirstName,
