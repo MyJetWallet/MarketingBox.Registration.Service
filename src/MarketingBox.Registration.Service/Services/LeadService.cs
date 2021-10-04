@@ -21,13 +21,13 @@ using MarketingBox.Registration.Service.Grpc.Models.Common;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Requests;
 using MarketingBox.Registration.Service.Messages.Leads;
+using Z.EntityFramework.Plus;
 using LeadAdditionalInfoMessage = MarketingBox.Registration.Service.Messages.Leads.LeadAdditionalInfo;
 using LeadBrandRegistrationInfoMessage = MarketingBox.Registration.Service.Messages.Leads.LeadBrandRegistrationInfo;
 using LeadGeneralInfoMessage = MarketingBox.Registration.Service.Messages.Leads.LeadGeneralInfo;
 using LeadRouteInfoMessage = MarketingBox.Registration.Service.Messages.Leads.LeadRouteInfo;
 
 using LeadAdditionalInfoDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadAdditionalInfo;
-using LeadBrandInfoDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadBrandInfo;
 using LeadEntityDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadEntity;
 using LeadStatusDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadStatus;
 using LeadTypeDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadType;
@@ -118,13 +118,14 @@ namespace MarketingBox.Registration.Service.Services
                 Status = LeadStatusDb.New,
                 Type = LeadTypeDb.Unsigned,
                 Sequence = 0,
-                BrandInfo = new Postgres.Entities.Lead.LeadBrandInfo()
+                BrandRegistrationInfo = new Postgres.Entities.Lead.LeadBrandRegistrationInfo()
                 {
                     AffiliateId = request.AuthInfo.AffiliateId,
                     BoxId = request.AuthInfo.BoxId,
                     Brand = brandName,
                     CampaignId = campaignId,
-                    //BrandId = brandId,
+                    BrandId = brandId,
+
                 },
                 AdditionalInfo = new Postgres.Entities.Lead.LeadAdditionalInfo()
                 {
@@ -159,6 +160,19 @@ namespace MarketingBox.Registration.Service.Services
                 leadEntity.Sequence++;
                 leadEntity.Type = brandInfo.Status.IsSuccess() ?    
                     LeadTypeDb.Lead : leadEntity.Type = LeadTypeDb.Failure;
+
+                leadEntity.BrandRegistrationInfo.CustomerId = brandInfo.Data.CustomerId;
+                leadEntity.BrandRegistrationInfo.BrandResponse = brandInfo.Data.ToString();
+
+                var affectedRowsCount = await ctx.Leads
+                    .Where(x => x.LeadId == leadEntity.LeadId &&
+                                x.Sequence <= leadEntity.Sequence)
+                    .UpdateAsync(x => leadEntity);
+
+                if (affectedRowsCount != 1)
+                {
+                    throw new Exception("Update failed");
+                }
 
                 await _publisherLeadUpdated.PublishAsync(MapToMessage(leadEntity, brandInfo));
                 _logger.LogInformation("Sent lead created to service bus {@context}", request);
@@ -265,8 +279,7 @@ namespace MarketingBox.Registration.Service.Services
                     Email = leadEntity.Email,
                     UniqueId = leadEntity.LeadId.ToString(),
                     LoginUrl = response.RegistrationCustomerInfo.LoginUrl,
-                    //TODO: Remove broker
-                    Broker = leadEntity.BrandInfo.Brand,
+                    Broker = leadEntity.BrandRegistrationInfo.Brand,
                     CustomerId = response.RegistrationCustomerInfo.CustomerId,
                     Token = response.RegistrationCustomerInfo.Token,
                 }
@@ -325,17 +338,18 @@ namespace MarketingBox.Registration.Service.Services
                 },
                 RouteInfo = new LeadRouteInfo()
                 {
-                    AffiliateId = leadEntity.BrandInfo.AffiliateId,
-                    BoxId = leadEntity.BrandInfo.BoxId,
-                    Brand = leadEntity.BrandInfo.Brand,
-                    CampaignId = leadEntity.BrandInfo.CampaignId
+                    AffiliateId = leadEntity.BrandRegistrationInfo.AffiliateId,
+                    BoxId = leadEntity.BrandRegistrationInfo.BoxId,
+                    Brand = leadEntity.BrandRegistrationInfo.Brand,
+                    CampaignId = leadEntity.BrandRegistrationInfo.CampaignId
                 },
-                RegistrationInfo = new LeadBrandRegistrationInfo()
+                RegistrationInfo = new LeadBrandRegistrationInfoMessage()
                 {
-                    Broker = brandInfo != null ? brandInfo.Data.Broker : string.Empty,
                     CustomerId = brandInfo != null ? brandInfo.Data.CustomerId : string.Empty,
                     LoginUrl = brandInfo != null ? brandInfo.Data.LoginUrl : string.Empty,
                     Token = brandInfo != null ? brandInfo.Data.Token : string.Empty,
+                    Brand = leadEntity.BrandRegistrationInfo.Brand,
+                    BrandId = leadEntity.BrandRegistrationInfo.BrandId,
                 }
             };
         }
@@ -375,10 +389,10 @@ namespace MarketingBox.Registration.Service.Services
                     },
                     BrandInfo = new MyNoSql.Leads.LeadBrandInfo()
                     {
-                        AffiliateId = leadEntity.BrandInfo.AffiliateId,
-                        BoxId = leadEntity.BrandInfo.BoxId,
-                        Brand = leadEntity.BrandInfo.Brand,
-                        CampaignId = leadEntity.BrandInfo.CampaignId
+                        AffiliateId = leadEntity.BrandRegistrationInfo.AffiliateId,
+                        BoxId = leadEntity.BrandRegistrationInfo.BoxId,
+                        Brand = leadEntity.BrandRegistrationInfo.Brand,
+                        CampaignId = leadEntity.BrandRegistrationInfo.CampaignId
                     }
                 }
                 );

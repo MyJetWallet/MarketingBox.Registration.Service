@@ -163,7 +163,7 @@ namespace MarketingBox.Registration.Postgres.Migrations
                                 .HasForeignKey("LeadEntityLeadId");
                         });
 
-                    b.OwnsOne("MarketingBox.Registration.Postgres.Entities.Lead.LeadBrandInfo", "BrandInfo", b1 =>
+                    b.OwnsOne("MarketingBox.Registration.Postgres.Entities.Lead.LeadBrandRegistrationInfo", "BrandRegistrationInfo", b1 =>
                         {
                             b1.Property<long>("LeadEntityLeadId")
                                 .ValueGeneratedOnAdd()
@@ -195,7 +195,7 @@ namespace MarketingBox.Registration.Postgres.Migrations
 
                     b.Navigation("AdditionalInfo");
 
-                    b.Navigation("BrandInfo");
+                    b.Navigation("BrandRegistrationInfo");
                 });
 #pragma warning restore 612, 618
         }

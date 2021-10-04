@@ -25,7 +25,7 @@ namespace MarketingBox.Registration.Service.Tests
                 Status = LeadStatus.New,
                 Type = LeadType.Unsigned,
                 Sequence = 0,
-                BrandInfo = new Postgres.Entities.Lead.LeadBrandInfo()
+                BrandRegistrationInfo = new Postgres.Entities.Lead.LeadBrandRegistrationInfo()
                 {
 
                     AffiliateId = 6,

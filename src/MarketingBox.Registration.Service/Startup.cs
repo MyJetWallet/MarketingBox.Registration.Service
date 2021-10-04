@@ -60,7 +60,7 @@ namespace MarketingBox.Registration.Service
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcSchema<LeadService, ILeadService>();
-
+                endpoints.MapGrpcSchema<DepositService, IDepositService>();
                 endpoints.MapGrpcSchemaRegistry();
 
                 endpoints.MapGet("/", async context =>

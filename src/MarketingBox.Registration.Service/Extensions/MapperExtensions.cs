@@ -33,7 +33,7 @@ namespace MarketingBox.Registration.Service.Extensions
                 Status = LeadStatus.New,
                 Type = LeadType.Unsigned,
                 Sequence = 0,
-                BrandInfo = new Postgres.Entities.Lead.LeadBrandInfo()
+                BrandRegistrationInfo = new Postgres.Entities.Lead.LeadBrandRegistrationInfo()
                 {
 
                     AffiliateId = request.AuthInfo.AffiliateId,
@@ -67,8 +67,8 @@ namespace MarketingBox.Registration.Service.Extensions
                 TenantId = leadEntity.TenantId,
                 LeadId = leadEntity.LeadId,
                 LeadUniqueId = leadEntity.UniqueId,
-                BrandName = leadEntity.BrandInfo.Brand,
-                BrandId = brandId,//leadEntity.BrandInfo.BrandId,
+                BrandName = leadEntity.BrandRegistrationInfo.Brand,
+                BrandId = brandId,//leadEntity.BrandRegistrationInfo.BrandId,
                 Info = new RegistrationLeadInfo()
                 {
                     FirstName = leadEntity.FirstName,

@@ -15,6 +15,9 @@ namespace MarketingBox.Registration.Service.Messages.Leads
         public string LoginUrl { get; set; }
 
         [DataMember(Order = 4)]
-        public string Broker { get; set; }
+        public string Brand { get; set; }
+
+        [DataMember(Order = 5)]
+        public long BrandId { get; set; }
     }
 }
