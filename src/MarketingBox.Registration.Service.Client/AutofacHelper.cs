@@ -12,6 +12,7 @@ namespace MarketingBox.Registration.Service.Client
             var factory = new RegistrationServiceClientFactory(grpcServiceUrl);
 
             builder.RegisterInstance(factory.GetPartnerService()).As<ILeadService>().SingleInstance();
+            builder.RegisterInstance(factory.GetDepositService()).As<IDepositService>().SingleInstance();
         }
     }
 }

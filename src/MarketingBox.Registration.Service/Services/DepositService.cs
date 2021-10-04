@@ -146,9 +146,8 @@ namespace MarketingBox.Registration.Service.Services
                 AffiliateId = leadEntity.BrandRegistrationInfo.AffiliateId,
                 BoxId = leadEntity.BrandRegistrationInfo.BoxId,
                 CampaignId = leadEntity.BrandRegistrationInfo.CampaignId,
-                Email = leadEntity.Email,
-                CustomerId = brandInfo.CustomerId,
                 Sequence = leadEntity.Sequence,
+                LeadId = leadEntity.LeadId
             };
         }
     }
