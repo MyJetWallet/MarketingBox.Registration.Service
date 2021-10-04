@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using MarketingBox.Registration.Service.Client;
 using MarketingBox.Registration.Service.Grpc.Models.Common;
+using MarketingBox.Registration.Service.Grpc.Models.Deposits.Contracts;
 using MarketingBox.Registration.Service.Grpc.Models.Leads;
-using MarketingBox.Registration.Service.Grpc.Models.Leads.Messages;
-using MarketingBox.Registration.Service.Grpc.Models.Leads.Requests;
+using MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts;
 using ProtoBuf.Grpc.Client;
 
 namespace TestApp
@@ -18,33 +18,28 @@ namespace TestApp
             Console.Write("Press enter to start");
             Console.ReadLine();
 
-            var factory = new RegistrationServiceClientFactory("http://localhost:12347");
-            var client = factory.GetPartnerService();
+            var factory = new RegistrationServiceClientFactory("http://localhost:90");
+            var leadService = factory.GetRegistrationService();
+            var depositService = factory.GetDepositService();
             var testTenant = "Test-Tenant";
-            var check = await client.CreateAsync(new LeadCreateRequest()
+            var lead = await leadService.CreateAsync(new LeadCreateRequest()
             {
                 TenantId = testTenant,
             });
 
 
-            var request = new LeadCreateRequest()
-            {
-                TenantId = testTenant,
-            };
-            request.GeneralInfo = new LeadGeneralInfo()
-            {
-                //Currency = Currency.CHF,
-                //Email = "email@email.com",
-                //Password = "sadadadwad",
-                //Phone = "+79990999999",
-                //Skype = "skype",
-                //Type = LeadType.Active,
-                //Username = "User",
-                //ZipCode = "414141"
-            };
 
-            var leadCreated = (await  client.CreateAsync(request)).BrandInfo;
-
+            var deposit = await depositService.CreateDepositAsync(
+                new DepositCreateRequest()
+                {
+                    Email = "email@email.com",
+                    BrandId = 23,
+                    CreatedAt = DateTime.UtcNow,
+                    CustomerId = "CUSTOMER-1234",
+                    BrandName = "Monfex",
+                    TenantId = testTenant
+                }
+            );
             //Console.WriteLine(leadCreated.LeadId);
 
             //var partnerUpdated = (await client.UpdateAsync(new LeadUpdateRequest()

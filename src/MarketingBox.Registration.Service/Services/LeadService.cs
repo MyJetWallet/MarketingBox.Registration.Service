@@ -20,7 +20,6 @@ using MarketingBox.Registration.Service.Extensions;
 using MarketingBox.Registration.Service.Grpc.Models.Common;
 using MarketingBox.Registration.Service.Grpc.Models.Leads;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts;
-using MarketingBox.Registration.Service.Grpc.Models.Leads.Requests;
 using MarketingBox.Registration.Service.Messages.Leads;
 using Z.EntityFramework.Plus;
 using LeadAdditionalInfoMessage = MarketingBox.Registration.Service.Messages.Leads.LeadAdditionalInfo;

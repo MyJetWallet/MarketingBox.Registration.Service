@@ -22,6 +22,6 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Deposits.Contracts
         public long BrandId { get; set; }
         
         [DataMember(Order = 6)]
-        public DateTimeOffset CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

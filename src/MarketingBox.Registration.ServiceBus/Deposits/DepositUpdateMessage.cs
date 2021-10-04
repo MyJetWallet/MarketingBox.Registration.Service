@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace MarketingBox.Registration.Service.Messages.Deposits
 {
@@ -29,7 +30,8 @@ namespace MarketingBox.Registration.Service.Messages.Deposits
         [DataMember(Order = 8)]
         public long BoxId { get; set; }
 
-
+        [DataMember(Order = 0)]
+        public DateTime CreatedAt { get; set; }
     }
 
 }

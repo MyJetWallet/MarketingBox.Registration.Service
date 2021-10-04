@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace MarketingBox.Registration.Service.Grpc.Models.Leads.Messages
+namespace MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts
 {
     [DataContract]
     public class LeadGetRequest 
