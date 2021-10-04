@@ -5,6 +5,7 @@ namespace MarketingBox.Registration.Postgres.Entities.Deposit
     public class DepositEntity
     {
         public string TenantId { get; set; }
+        public long DepositId { get; set; }
         public long BrandId { get; set; }
         public long AffiliateId { get; set; }
         public long CampaignId { get; set; }
