@@ -1,4 +1,5 @@
-﻿using MarketingBox.Registration.Postgres.Entities.Lead;
+﻿using MarketingBox.Registration.Postgres.Entities.Deposit;
+using MarketingBox.Registration.Postgres.Entities.Lead;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -15,6 +16,10 @@ namespace MarketingBox.Registration.Postgres
         private const string LeadTableName = "leads";
 
         public DbSet<LeadEntity> Leads { get; set; }
+
+        private const string DepositTableName = "deposits";
+
+        public DbSet<DepositEntity> Deposits { get; set; }
 
 
         public DatabaseContext(DbContextOptions options) : base(options)
@@ -47,8 +52,12 @@ namespace MarketingBox.Registration.Postgres
             modelBuilder.Entity<LeadEntity>().OwnsOne(x => x.BrandInfo);   //modelBuilder.Entity<LeadEntity>().Ignore(x => x.GeneralInfo);
             modelBuilder.Entity<LeadEntity>().OwnsOne(x => x.AdditionalInfo);
             modelBuilder.Entity<LeadEntity>().HasIndex(e => new {e.TenantId, e.LeadId});
+
+            modelBuilder.Entity<DepositEntity>().ToTable(DepositTableName);
+            modelBuilder.Entity<LeadEntity>().HasKey(e => e.LeadId);
+            modelBuilder.Entity<LeadEntity>().HasIndex(e => new { e.TenantId, e.LeadId });
         }
-            
+
         public override void Dispose()
         {
             base.Dispose();

@@ -1,39 +1,37 @@
 ﻿using DotNetCoreDecorators;
 using MarketingBox.Registration.Postgres;
-using MarketingBox.Registration.Service.Domain.Extensions;
 using MarketingBox.Registration.Service.Grpc;
-using MarketingBox.Registration.Service.Grpc.Models.Leads;
-using MarketingBox.Registration.Service.Grpc.Models.Leads.Messages;
 using MarketingBox.Registration.Service.MyNoSql.Leads;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MyNoSqlServer.Abstractions;
 using System;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using MarketingBox.Affiliate.Service.Messages.Partners;
 using MarketingBox.Affiliate.Service.MyNoSql.Boxes;
 using MarketingBox.Affiliate.Service.MyNoSql.Brands;
 using MarketingBox.Affiliate.Service.MyNoSql.CampaignBoxes;
 using MarketingBox.Affiliate.Service.MyNoSql.Campaigns;
 using MarketingBox.Affiliate.Service.MyNoSql.Partners;
 using MarketingBox.Integration.Service.Grpc;
-using MarketingBox.Integration.Service.Grpc.Models.Leads;
 using MarketingBox.Registration.Postgres.Entities.Lead;
+using MarketingBox.Registration.Service.Domain.Extensions;
 using MarketingBox.Registration.Service.Extensions;
 using MarketingBox.Registration.Service.Grpc.Models.Common;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Requests;
 using MarketingBox.Registration.Service.Messages.Leads;
-using Z.EntityFramework.Plus;
-using LeadAdditionalInfo = MarketingBox.Registration.Service.Messages.Leads.LeadAdditionalInfo;
-using LeadBrandInfo = MarketingBox.Registration.Postgres.Entities.Lead.LeadBrandInfo;
-using LeadBrandRegistrationInfo = MarketingBox.Registration.Service.Messages.Leads.LeadBrandRegistrationInfo;
-using LeadGeneralInfo = MarketingBox.Registration.Service.Messages.Leads.LeadGeneralInfo;
-using LeadRouteInfo = MarketingBox.Registration.Service.Messages.Leads.LeadRouteInfo;
-using LeadStatus = MarketingBox.Registration.Service.Domain.Lead.LeadStatus;
-using LeadType = MarketingBox.Registration.Service.Domain.Lead.LeadType;
+using LeadAdditionalInfoMessage = MarketingBox.Registration.Service.Messages.Leads.LeadAdditionalInfo;
+using LeadBrandRegistrationInfoMessage = MarketingBox.Registration.Service.Messages.Leads.LeadBrandRegistrationInfo;
+using LeadGeneralInfoMessage = MarketingBox.Registration.Service.Messages.Leads.LeadGeneralInfo;
+using LeadRouteInfoMessage = MarketingBox.Registration.Service.Messages.Leads.LeadRouteInfo;
+
+using LeadAdditionalInfoDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadAdditionalInfo;
+using LeadBrandInfoDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadBrandInfo;
+using LeadEntityDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadEntity;
+using LeadStatusDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadStatus;
+using LeadTypeDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadType;
+
 
 
 namespace MarketingBox.Registration.Service.Services
@@ -106,19 +104,19 @@ namespace MarketingBox.Registration.Service.Services
                 );
             }
 
-            var leadEntity = new LeadEntity()
+            var leadEntity = new LeadEntityDb()
             {
                 TenantId = tenantId,
                 UniqueId = UniqueIdGenerator.GetNextId(),
-                CreatedAt = request.GeneralInfo.CreatedAt,
+                CreatedAt = DateTime.UtcNow,
                 FirstName = request.GeneralInfo.FirstName,
                 LastName = request.GeneralInfo.LastName,
                 Email = request.GeneralInfo.Email,
                 Ip = request.GeneralInfo.Ip,
                 Password = request.GeneralInfo.Password,
                 Phone = request.GeneralInfo.Phone,
-                Status = LeadStatus.New,
-                Type = LeadType.Unsigned,
+                Status = LeadStatusDb.New,
+                Type = LeadTypeDb.Unsigned,
                 Sequence = 0,
                 BrandInfo = new Postgres.Entities.Lead.LeadBrandInfo()
                 {
@@ -159,8 +157,8 @@ namespace MarketingBox.Registration.Service.Services
                 var brandInfo = await BrandRegisterAsync(leadEntity, brandId);
                 
                 leadEntity.Sequence++;
-                leadEntity.Type = brandInfo.Status.IsSuccess() ?
-                    LeadType.Lead : leadEntity.Type = LeadType.Failure;
+                leadEntity.Type = brandInfo.Status.IsSuccess() ?    
+                    LeadTypeDb.Lead : leadEntity.Type = LeadTypeDb.Failure;
 
                 await _publisherLeadUpdated.PublishAsync(MapToMessage(leadEntity, brandInfo));
                 _logger.LogInformation("Sent lead created to service bus {@context}", request);
@@ -300,7 +298,7 @@ namespace MarketingBox.Registration.Service.Services
                 LeadId = leadEntity.LeadId,
                 UniqueId = leadEntity.UniqueId,
                 Sequence = leadEntity.Sequence,
-                GeneralInfo = new LeadGeneralInfo()
+                GeneralInfo = new LeadGeneralInfoMessage()
                 {
                     Email = leadEntity.Email,
                     FirstName = leadEntity.FirstName,
@@ -308,9 +306,9 @@ namespace MarketingBox.Registration.Service.Services
                     Phone = leadEntity.Phone,
                     Ip = leadEntity.Ip,
                     Password = leadEntity.Password,
-                    CreatedAt = leadEntity.CreatedAt
+                    CreatedAt = leadEntity.CreatedAt.UtcDateTime
                 },
-                AdditionalInfo = new LeadAdditionalInfo()
+                AdditionalInfo = new LeadAdditionalInfoMessage()
                 {
                     So = leadEntity.AdditionalInfo.So,
                     Sub = leadEntity.AdditionalInfo.Sub,
@@ -356,10 +354,10 @@ namespace MarketingBox.Registration.Service.Services
                     Ip = leadEntity.Ip,
                     Password = leadEntity.Password,
                     Phone = leadEntity.Phone,
-                    Status = leadEntity.Status,
+                    Status = leadEntity.Status.MapEnum<MarketingBox.Registration.Service.MyNoSql.Leads.LeadStatus>(),
                     TenantId = leadEntity.TenantId,
-                    CreatedAt = leadEntity.CreatedAt,
-                    Type = leadEntity.Type,
+                    CreatedAt = leadEntity.CreatedAt.UtcDateTime,
+                    Type = leadEntity.Type.MapEnum<MarketingBox.Registration.Service.MyNoSql.Leads.LeadType>(),
                     AdditionalInfo = new MyNoSql.Leads.LeadAdditionalInfo()
                     {
                         So = leadEntity.AdditionalInfo.So,

@@ -1,5 +1,4 @@
 ﻿using System;
-using MarketingBox.Registration.Service.Domain.Lead;
 
 namespace MarketingBox.Registration.Postgres.Entities.Lead
 {
@@ -18,7 +17,7 @@ namespace MarketingBox.Registration.Postgres.Entities.Lead
         public LeadAdditionalInfo AdditionalInfo { get; set; }
         public LeadType Type { get; set; }
         public LeadStatus Status{ get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
         public long Sequence { get; set; }
     }
 }

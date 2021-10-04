@@ -25,7 +25,6 @@ namespace MarketingBox.Registration.Service.MyNoSql.Leads
                 LeadId = leadId,
                 GeneralInfo = generalInfo,
                 TenantId = tenantId,
-                
             };
 
     }

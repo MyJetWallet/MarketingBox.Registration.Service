@@ -1,6 +1,5 @@
 ﻿using System;
 using MarketingBox.Registration.Postgres.Entities.Lead;
-using MarketingBox.Registration.Service.Domain.Lead;
 using MarketingBox.Registration.Service.Services;
 using NUnit.Framework;
 
@@ -31,7 +30,7 @@ namespace MarketingBox.Registration.Service.Tests
 
                     AffiliateId = 6,
                     BoxId = 3,
-                    Brand = "Mpnfex",
+                    Brand = "Monfex",
                     CampaignId = 1
                 },
                 AdditionalInfo = new Postgres.Entities.Lead.LeadAdditionalInfo()

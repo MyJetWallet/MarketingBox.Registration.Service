@@ -1,4 +1,4 @@
-﻿namespace MarketingBox.Registration.Service.Domain.Lead
+﻿namespace MarketingBox.Registration.Postgres.Entities.Lead
 {
     public enum LeadType
     {

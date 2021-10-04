@@ -6,6 +6,6 @@
         public long CampaignId { get; set; }
         public long BoxId { get; set; }
         public string Brand { get; set; }
-        //public long BrandId { get; set; }
+        public long BrandId { get; set; }
     }
 }

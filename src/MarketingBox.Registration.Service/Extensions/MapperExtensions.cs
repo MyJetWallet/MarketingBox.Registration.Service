@@ -2,7 +2,6 @@ using System;
 using MarketingBox.Integration.Service.Grpc.Models.Leads;
 using MarketingBox.Integration.Service.Grpc.Models.Leads.Contracts;
 using MarketingBox.Registration.Postgres.Entities.Lead;
-using MarketingBox.Registration.Service.Domain.Lead;
 using MarketingBox.Registration.Service.Grpc.Models.Leads;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Requests;
 using MarketingBox.Registration.Service.Services;

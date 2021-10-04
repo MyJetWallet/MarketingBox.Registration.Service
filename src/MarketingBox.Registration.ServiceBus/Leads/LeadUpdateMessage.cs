@@ -28,5 +28,13 @@ namespace MarketingBox.Registration.Service.Messages.Leads
 
         [DataMember(Order = 8)]
         public LeadBrandRegistrationInfo RegistrationInfo { get; set; }
+
+        [DataMember(Order = 9)] 
+        public LeadType Type  { get; set; }
+
+        [DataMember(Order = 10)]
+        public LeadStatus CallStatus{ get; set; }
+
+
     }
 }
