@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MarketingBox.Registration.Postgres.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20210927132013_Migration_Lead_Deploy_2")]
-    partial class Migration_Lead_Deploy_2
+    [Migration("20211004141829_Migration_Lead_Deploy_4")]
+    partial class Migration_Lead_Deploy_4
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -22,6 +22,44 @@ namespace MarketingBox.Registration.Postgres.Migrations
                 .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+            modelBuilder.Entity("MarketingBox.Registration.Postgres.Entities.Deposit.DepositEntity", b =>
+                {
+                    b.Property<long>("DepositId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<long>("AffiliateId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("BoxId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("BrandId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CampaignId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CustomerId")
+                        .HasColumnType("text");
+
+                    b.Property<long>("Sequence")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("TenantId")
+                        .HasColumnType("text");
+
+                    b.HasKey("DepositId");
+
+                    b.HasIndex("TenantId", "DepositId");
+
+                    b.ToTable("deposits");
+                });
+
             modelBuilder.Entity("MarketingBox.Registration.Postgres.Entities.Lead.LeadEntity", b =>
                 {
                     b.Property<long>("LeadId")
@@ -29,8 +67,8 @@ namespace MarketingBox.Registration.Postgres.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .HasColumnType("text");
@@ -141,8 +179,17 @@ namespace MarketingBox.Registration.Postgres.Migrations
                             b1.Property<string>("Brand")
                                 .HasColumnType("text");
 
+                            b1.Property<long>("BrandId")
+                                .HasColumnType("bigint");
+
+                            b1.Property<string>("BrandResponse")
+                                .HasColumnType("text");
+
                             b1.Property<long>("CampaignId")
                                 .HasColumnType("bigint");
+
+                            b1.Property<string>("CustomerId")
+                                .HasColumnType("text");
 
                             b1.HasKey("LeadEntityLeadId");
 

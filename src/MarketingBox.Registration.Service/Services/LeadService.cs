@@ -18,6 +18,7 @@ using MarketingBox.Registration.Postgres.Entities.Lead;
 using MarketingBox.Registration.Service.Domain.Extensions;
 using MarketingBox.Registration.Service.Extensions;
 using MarketingBox.Registration.Service.Grpc.Models.Common;
+using MarketingBox.Registration.Service.Grpc.Models.Leads;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Requests;
 using MarketingBox.Registration.Service.Messages.Leads;
@@ -125,7 +126,8 @@ namespace MarketingBox.Registration.Service.Services
                     Brand = brandName,
                     CampaignId = campaignId,
                     BrandId = brandId,
-
+                    BrandResponse = string.Empty,
+                    CustomerId = string.Empty
                 },
                 AdditionalInfo = new Postgres.Entities.Lead.LeadAdditionalInfo()
                 {
@@ -149,7 +151,15 @@ namespace MarketingBox.Registration.Service.Services
                 ctx.Leads.Add(leadEntity);
                 await ctx.SaveChangesAsync();
 
-                await _publisherLeadUpdated.PublishAsync(MapToMessage(leadEntity, null));
+                await _publisherLeadUpdated.PublishAsync(MapToMessage(leadEntity, new Grpc.Models.Leads.LeadBrandInfo()
+                {
+                    Data = new Grpc.Models.Leads.LeadBrandRegistrationInfo()
+                    {
+                        CustomerId = string.Empty,
+                        Token = string.Empty,
+                        LoginUrl = string.Empty,
+                    }
+                }));
                 _logger.LogInformation("Sent lead created to service bus {@context}", request);
 
                 await _myNoSqlServerDataWriter.InsertOrReplaceAsync(MapToNoSql(leadEntity));
@@ -336,7 +346,7 @@ namespace MarketingBox.Registration.Service.Services
                     Sub9 = leadEntity.AdditionalInfo.Sub9,
                     Sub10 = leadEntity.AdditionalInfo.Sub10,
                 },
-                RouteInfo = new LeadRouteInfo()
+                RouteInfo = new LeadRouteInfoMessage()
                 {
                     AffiliateId = leadEntity.BrandRegistrationInfo.AffiliateId,
                     BoxId = leadEntity.BrandRegistrationInfo.BoxId,
