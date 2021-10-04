@@ -169,7 +169,7 @@ namespace MarketingBox.Registration.Service.Services
                 
                 leadEntity.Sequence++;
                 leadEntity.Type = brandInfo.Status.IsSuccess() ?    
-                    LeadTypeDb.Lead : leadEntity.Type = LeadTypeDb.Failure;
+                    LeadTypeDb.Lead : LeadTypeDb.Failure;
 
                 leadEntity.BrandRegistrationInfo.CustomerId = brandInfo.Data.CustomerId;
                 leadEntity.BrandRegistrationInfo.BrandResponse = brandInfo.Data.ToString();
@@ -177,7 +177,17 @@ namespace MarketingBox.Registration.Service.Services
                 var affectedRowsCount = await ctx.Leads
                     .Where(x => x.LeadId == leadEntity.LeadId &&
                                 x.Sequence <= leadEntity.Sequence)
-                    .UpdateAsync(x => leadEntity);
+                    .UpdateAsync(x => new LeadEntity()
+                    {
+                        BrandRegistrationInfo = new MarketingBox.Registration.Postgres.Entities.Lead.LeadBrandRegistrationInfo()
+                        {
+                            CustomerId = brandInfo.Data.CustomerId,
+                            BrandResponse = brandInfo.Data.ToString()
+                        },
+                        Sequence = leadEntity.Sequence,
+                        Type = leadEntity.Type
+                    });
+
 
                 if (affectedRowsCount != 1)
                 {
