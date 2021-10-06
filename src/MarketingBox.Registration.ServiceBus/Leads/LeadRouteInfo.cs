@@ -16,6 +16,9 @@ namespace MarketingBox.Registration.Service.Messages.Leads
 
         [DataMember(Order = 4)]
         public string Brand { get; set; }
+
+        [DataMember(Order = 5)]
+        public long BrandId { get; set; }
     }
 }
 

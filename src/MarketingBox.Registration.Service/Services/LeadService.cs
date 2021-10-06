@@ -360,7 +360,8 @@ namespace MarketingBox.Registration.Service.Services
                     AffiliateId = leadEntity.BrandRegistrationInfo.AffiliateId,
                     BoxId = leadEntity.BrandRegistrationInfo.BoxId,
                     Brand = leadEntity.BrandRegistrationInfo.Brand,
-                    CampaignId = leadEntity.BrandRegistrationInfo.CampaignId
+                    CampaignId = leadEntity.BrandRegistrationInfo.CampaignId,
+                    BrandId = leadEntity.BrandRegistrationInfo.BrandId
                 },
                 RegistrationInfo = new LeadBrandRegistrationInfoMessage()
                 {
