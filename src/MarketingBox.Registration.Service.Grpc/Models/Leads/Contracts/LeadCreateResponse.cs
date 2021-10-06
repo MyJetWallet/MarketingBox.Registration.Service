@@ -21,21 +21,28 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts
         [DataMember(Order = 5)]
         public LeadGeneralInfo OriginalData { get; set; }
 
+        [DataMember(Order = 6)]
+        public long LeadId { get; set; }
 
         [DataMember(Order = 100)]
         public Error Error { get; set; }
 
-        public static LeadCreateResponse Successfully(LeadBrandRegistrationInfo _brandRegistrationInfo)
+        public static LeadCreateResponse Successfully(LeadBrandRegistrationInfo brandRegistrationInfo, long leadId,
+            string brand)
         {
             return new LeadCreateResponse()
             {
                 Status = true,
-                Message = _brandRegistrationInfo.LoginUrl,
+                Message = brandRegistrationInfo.LoginUrl,
                 BrandInfo = new LeadBrandInfo()
                 {
                     Status = "successful",
-                    Data = _brandRegistrationInfo
+                    Data = brandRegistrationInfo,
+                    Brand = brand
                 },
+                FallbackUrl = string.Empty,
+                LeadId = leadId,
+                
             };
         }
 

@@ -12,5 +12,8 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads
 
         [DataMember(Order = 2)]
         public LeadBrandRegistrationInfo Data { get; set; }
+
+        [DataMember(Order = 3)]
+        public string Brand { get; set; }
     }
 }

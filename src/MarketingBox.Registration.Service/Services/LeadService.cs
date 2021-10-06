@@ -316,8 +316,8 @@ namespace MarketingBox.Registration.Service.Services
                 {
                     CustomerId = brandCustomerInfo.Data.CustomerId,
                     LoginUrl = brandCustomerInfo.Data.LoginUrl,
-                    Token = brandCustomerInfo.Data.Token
-                });
+                    Token = brandCustomerInfo.Data.Token,
+                }, registrationLeadRequest.LeadId, registrationLeadRequest.BrandRegistrationInfo.Brand);
             }
 
             return LeadCreateResponse.Failed(new Error()

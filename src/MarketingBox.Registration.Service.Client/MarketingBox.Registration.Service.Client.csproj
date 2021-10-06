@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MarketingBox.Registration.Service.Domain.Models\MarketingBox.Registration.Service.Domain.Models.csproj" />
+    <ProjectReference PrivateAssets="All" Include="..\MarketingBox.Registration.Service.Domain.Models\MarketingBox.Registration.Service.Domain.Models.csproj" />
     <ProjectReference PrivateAssets="All" Include="..\MarketingBox.Registration.Service.Grpc\MarketingBox.Registration.Service.Grpc.csproj" />
     <ProjectReference PrivateAssets="All" Include="..\MarketingBox.Registration.Service.MyNoSql\MarketingBox.Registration.Service.MyNoSql.csproj" />
     <ProjectReference PrivateAssets="All" Include="..\MarketingBox.Registration.ServiceBus\MarketingBox.Registration.Service.Messages.csproj" />
