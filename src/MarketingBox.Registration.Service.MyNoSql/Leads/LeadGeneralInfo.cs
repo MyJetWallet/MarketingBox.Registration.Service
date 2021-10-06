@@ -1,5 +1,4 @@
 ﻿using System;
-using MarketingBox.Registration.Service.Domain.Lead;
 
 namespace MarketingBox.Registration.Service.MyNoSql.Leads
 {

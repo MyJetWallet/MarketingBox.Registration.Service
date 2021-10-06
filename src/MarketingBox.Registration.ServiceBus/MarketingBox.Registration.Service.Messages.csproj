@@ -22,8 +22,4 @@
     <PackageReference Include="MyJetWallet.Sdk.ServiceBus" Version="1.0.4" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\MarketingBox.Registration.Service.Domain\MarketingBox.Registration.Service.Domain.csproj" />
-  </ItemGroup>
-
 </Project>

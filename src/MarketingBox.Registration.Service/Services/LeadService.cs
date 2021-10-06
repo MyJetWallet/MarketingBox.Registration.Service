@@ -295,10 +295,7 @@ namespace MarketingBox.Registration.Service.Services
                 Status = response.Status,
                 Data = new Grpc.Models.Leads.LeadBrandRegistrationInfo()
                 {
-                    Email = leadEntity.Email,
-                    UniqueId = leadEntity.LeadId.ToString(),
                     LoginUrl = response.RegistrationCustomerInfo.LoginUrl,
-                    Broker = leadEntity.BrandRegistrationInfo.Brand,
                     CustomerId = response.RegistrationCustomerInfo.CustomerId,
                     Token = response.RegistrationCustomerInfo.Token,
                 }
@@ -368,8 +365,6 @@ namespace MarketingBox.Registration.Service.Services
                     CustomerId = brandInfo != null ? brandInfo.Data.CustomerId : string.Empty,
                     LoginUrl = brandInfo != null ? brandInfo.Data.LoginUrl : string.Empty,
                     Token = brandInfo != null ? brandInfo.Data.Token : string.Empty,
-                    Brand = leadEntity.BrandRegistrationInfo.Brand,
-                    BrandId = leadEntity.BrandRegistrationInfo.BrandId,
                 }
             };
         }
