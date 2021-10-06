@@ -28,7 +28,9 @@ using LeadGeneralInfoMessage = MarketingBox.Registration.Service.Messages.Leads.
 using LeadRouteInfoMessage = MarketingBox.Registration.Service.Messages.Leads.LeadRouteInfo;
 
 using LeadAdditionalInfoDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadAdditionalInfo;
+using LeadBrandRegistrationInfo = MarketingBox.Registration.Service.Grpc.Models.Leads.LeadBrandRegistrationInfo;
 using LeadEntityDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadEntity;
+using LeadGeneralInfo = MarketingBox.Registration.Service.Grpc.Models.Leads.LeadGeneralInfo;
 using LeadStatusDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadStatus;
 using LeadTypeDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadType;
 
@@ -295,28 +297,45 @@ namespace MarketingBox.Registration.Service.Services
                 Status = response.Status,
                 Data = new Grpc.Models.Leads.LeadBrandRegistrationInfo()
                 {
-                    LoginUrl = response.RegistrationCustomerInfo.LoginUrl,
-                    CustomerId = response.RegistrationCustomerInfo.CustomerId,
-                    Token = response.RegistrationCustomerInfo.Token,
+                    LoginUrl = response.RegistrationCustomerInfo != null ? response.RegistrationCustomerInfo.LoginUrl : string.Empty,
+                    CustomerId = response.RegistrationCustomerInfo != null ? response.RegistrationCustomerInfo.CustomerId : string.Empty,
+                    Token = response.RegistrationCustomerInfo != null ? response.RegistrationCustomerInfo.Token : string.Empty,
                 }
             };
 
             return brandInfo;
         }
 
-        private static LeadCreateResponse MapToGrpc(LeadEntity leadEntity, 
-            Grpc.Models.Leads.LeadBrandInfo brandInfo)
+        private static LeadCreateResponse MapToGrpc(LeadEntity registrationLeadRequest, 
+            Grpc.Models.Leads.LeadBrandInfo brandCustomerInfo)
         {
-            //TODO: Remove
-            return new LeadCreateResponse() 
+
+            if (brandCustomerInfo.Status.Equals("successful", StringComparison.OrdinalIgnoreCase))
             {
-                Status = true,
-                FallbackUrl = String.Empty,
-                BrandInfo = brandInfo,
-                Message = brandInfo.Data.LoginUrl,
-                Error = null,
-                OriginalData = null,
-            };
+                return LeadCreateResponse.Successfully(new LeadBrandRegistrationInfo()
+                {
+                    CustomerId = brandCustomerInfo.Data.CustomerId,
+                    LoginUrl = brandCustomerInfo.Data.LoginUrl,
+                    Token = brandCustomerInfo.Data.Token
+                });
+            }
+
+            return LeadCreateResponse.Failed(new Error()
+            {
+                Message = "Can't register new trader ",
+                Type = ErrorType.InvalidParameter,
+            }, 
+                new LeadGeneralInfo()
+            {
+                Email = registrationLeadRequest.Email,
+                Password = registrationLeadRequest.Password,
+                FirstName = registrationLeadRequest.FirstName,
+                Ip = registrationLeadRequest.Ip,
+                LastName = registrationLeadRequest.LastName,
+                Phone = registrationLeadRequest.Phone,
+                CreatedAt = registrationLeadRequest.CreatedAt.UtcDateTime,
+                }
+            );
         }
 
         public static LeadUpdateMessage MapToMessage(LeadEntity leadEntity, Grpc.Models.Leads.LeadBrandInfo brandInfo)
