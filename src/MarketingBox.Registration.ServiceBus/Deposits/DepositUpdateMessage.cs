@@ -30,7 +30,7 @@ namespace MarketingBox.Registration.Service.Messages.Deposits
         [DataMember(Order = 8)]
         public long BoxId { get; set; }
 
-        [DataMember(Order = 0)]
+        [DataMember(Order = 9)]
         public DateTime CreatedAt { get; set; }
     }
 
