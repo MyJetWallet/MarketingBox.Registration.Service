@@ -294,12 +294,12 @@ namespace MarketingBox.Registration.Service.Services
 
             var brandInfo = new Grpc.Models.Leads.LeadBrandInfo()
             {
-                Status = response.Status,
+                Status = response.Status.ToString(),
                 Data = new Grpc.Models.Leads.LeadBrandRegistrationInfo()
                 {
-                    LoginUrl = response.RegistrationCustomerInfo != null ? response.RegistrationCustomerInfo.LoginUrl : string.Empty,
-                    CustomerId = response.RegistrationCustomerInfo != null ? response.RegistrationCustomerInfo.CustomerId : string.Empty,
-                    Token = response.RegistrationCustomerInfo != null ? response.RegistrationCustomerInfo.Token : string.Empty,
+                    LoginUrl = response.RegisteredLeadInfo != null ? response.RegisteredLeadInfo.LoginUrl : string.Empty,
+                    CustomerId = response.RegisteredLeadInfo != null ? response.RegisteredLeadInfo.CustomerId : string.Empty,
+                    Token = response.RegisteredLeadInfo != null ? response.RegisteredLeadInfo.Token : string.Empty,
                 }
             };
 
