@@ -96,7 +96,8 @@ namespace MarketingBox.Registration.Service.Services
                 BoxId = leadEntity.BrandRegistrationInfo.BoxId,
                 CampaignId = leadEntity.BrandRegistrationInfo.CampaignId,
                 Sequence = leadEntity.Sequence,
-                LeadId = leadEntity.LeadId
+                LeadId = leadEntity.LeadId,
+                CreatedAt = DateTime.UtcNow,
             };
         }
     }
