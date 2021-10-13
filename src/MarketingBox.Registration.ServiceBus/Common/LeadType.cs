@@ -1,4 +1,4 @@
-﻿namespace MarketingBox.Registration.Service.Messages.Leads
+﻿namespace MarketingBox.Registration.Service.Messages.Common
 {
     public enum LeadType
     {

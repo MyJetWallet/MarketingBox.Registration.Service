@@ -166,10 +166,10 @@ namespace MarketingBox.Registration.Service.Services
                 await _myNoSqlServerDataWriter.InsertOrReplaceAsync(MapToNoSql(leadEntity));
                 _logger.LogInformation("Sent partner update to MyNoSql {@context}", request);
 
-                var brandInfo = await BrandRegisterAsync(leadEntity, brandId);
+                var brandInfo = await BrandRegisterAsync(leadEntity, brandId, brandName);
                 
                 leadEntity.Sequence++;
-                leadEntity.Type = brandInfo.Status.IsSuccess() ?    
+                leadEntity.Type = brandInfo.Status == ResultCode.CompletedSuccessfully ?    
                     LeadTypeDb.Lead : LeadTypeDb.Failure;
 
                 leadEntity.BrandRegistrationInfo.CustomerId = brandInfo.Data.CustomerId;
@@ -287,14 +287,16 @@ namespace MarketingBox.Registration.Service.Services
         }
 
 
-        public async Task<Grpc.Models.Leads.LeadBrandInfo> BrandRegisterAsync(LeadEntity leadEntity, long brandId)
+        public async Task<Grpc.Models.Leads.LeadBrandInfo> BrandRegisterAsync(LeadEntity leadEntity, 
+            long brandId, string brand)
         {
             var request = leadEntity.CreateIntegrationRequest(brandId);
             var response = await _integrationService.RegisterLeadAsync(request);
 
             var brandInfo = new Grpc.Models.Leads.LeadBrandInfo()
             {
-                Status = response.Status.ToString(),
+                Status = (ResultCode)response.Status,
+                Brand = brand,
                 Data = new Grpc.Models.Leads.LeadBrandRegistrationInfo()
                 {
                     LoginUrl = response.RegisteredLeadInfo != null ? response.RegisteredLeadInfo.LoginUrl : string.Empty,
@@ -310,7 +312,7 @@ namespace MarketingBox.Registration.Service.Services
             Grpc.Models.Leads.LeadBrandInfo brandCustomerInfo)
         {
 
-            if (brandCustomerInfo.Status.Equals("successful", StringComparison.OrdinalIgnoreCase))
+            if (brandCustomerInfo.Status == ResultCode.CompletedSuccessfully)
             {
                 return LeadCreateResponse.Successfully(new LeadBrandRegistrationInfo()
                 {

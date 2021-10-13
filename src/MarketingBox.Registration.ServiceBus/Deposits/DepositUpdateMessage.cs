@@ -53,6 +53,12 @@ namespace MarketingBox.Registration.Service.Messages.Deposits
 
         [DataMember(Order = 15)]
         public ApprovedType Approved { get; set; }
+
+        [DataMember(Order = 16)]
+        public DateTime ConversionDate { get; set; }
+
+        [DataMember(Order = 17)]
+        public string BrandStatus { get; set; }
     }
 
 }

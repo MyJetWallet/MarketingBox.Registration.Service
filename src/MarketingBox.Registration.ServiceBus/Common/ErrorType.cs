@@ -1,4 +1,4 @@
-﻿namespace MarketingBox.Registration.Service.Grpc.Models.Common
+﻿namespace MarketingBox.Registration.Service.Messages.Common
 {
     public enum ErrorType
     {

@@ -7,7 +7,7 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts
     public class LeadCreateResponse
     {
         [DataMember(Order = 1)]
-        public bool Status { get; set; }
+        public ResultCode Status { get; set; }
 
         [DataMember(Order = 2)]
         public string Message { get; set; }
@@ -32,11 +32,11 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts
         {
             return new LeadCreateResponse()
             {
-                Status = true,
+                Status = ResultCode.CompletedSuccessfully,
                 Message = brandRegistrationInfo.LoginUrl,
                 BrandInfo = new LeadBrandInfo()
                 {
-                    Status = "successful",
+                    Status = ResultCode.CompletedSuccessfully,
                     Data = brandRegistrationInfo,
                     Brand = brand
                 },
@@ -50,7 +50,7 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts
         {
             return new LeadCreateResponse()
             {
-                Status = false,
+                Status = ResultCode.Failed,
                 Message = error.Message,
                 Error = error,
                 OriginalData = originalData

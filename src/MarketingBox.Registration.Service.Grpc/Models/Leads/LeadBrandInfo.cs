@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.Transactions;
+using MarketingBox.Registration.Service.Grpc.Models.Common;
 
 namespace MarketingBox.Registration.Service.Grpc.Models.Leads
 {
@@ -8,7 +9,7 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads
     public class LeadBrandInfo
     {
         [DataMember(Order = 1)]
-        public string Status { get; set; }
+        public ResultCode Status { get; set; }
 
         [DataMember(Order = 2)]
         public LeadBrandRegistrationInfo Data { get; set; }
