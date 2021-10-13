@@ -31,7 +31,9 @@ using LeadAdditionalInfoDb = MarketingBox.Registration.Postgres.Entities.Lead.Le
 using LeadBrandRegistrationInfo = MarketingBox.Registration.Service.Grpc.Models.Leads.LeadBrandRegistrationInfo;
 using LeadEntityDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadEntity;
 using LeadGeneralInfo = MarketingBox.Registration.Service.Grpc.Models.Leads.LeadGeneralInfo;
+using LeadStatus = MarketingBox.Registration.Service.Messages.Common.LeadStatus;
 using LeadStatusDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadStatus;
+using LeadType = MarketingBox.Registration.Service.Messages.Common.LeadType;
 using LeadTypeDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadType;
 
 
@@ -386,7 +388,9 @@ namespace MarketingBox.Registration.Service.Services
                     CustomerId = brandInfo != null ? brandInfo.Data.CustomerId : string.Empty,
                     LoginUrl = brandInfo != null ? brandInfo.Data.LoginUrl : string.Empty,
                     Token = brandInfo != null ? brandInfo.Data.Token : string.Empty,
-                }
+                },
+                CallStatus = LeadStatus.New,
+                Type = LeadType.Unsigned
             };
         }
 
