@@ -73,6 +73,11 @@ namespace MarketingBox.Registration.Service.Services
             }
         }
 
+        public Task<DepositApproveResponse> ApproveDepositAsync(DepositApproveRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
         private static DepositCreateResponse MapToGrpc(DepositEntity depositEntity, 
             DepositCreateRequest brandRequest)
         {
