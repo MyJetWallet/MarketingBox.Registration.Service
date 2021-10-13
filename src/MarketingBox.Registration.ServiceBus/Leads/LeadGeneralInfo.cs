@@ -33,5 +33,8 @@ namespace MarketingBox.Registration.Service.Messages.Leads
 
         [DataMember(Order = 7)]
         public DateTime CreatedAt { get; set; }
+
+        [DataMember(Order = 8)]
+        public string Country { get; set; }
     }
 }

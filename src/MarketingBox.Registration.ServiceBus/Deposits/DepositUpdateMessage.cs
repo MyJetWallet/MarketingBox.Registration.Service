@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using Destructurama.Attributed;
+using MarketingBox.Registration.Service.Messages.Common;
 
 namespace MarketingBox.Registration.Service.Messages.Deposits
 {
@@ -32,6 +34,25 @@ namespace MarketingBox.Registration.Service.Messages.Deposits
 
         [DataMember(Order = 9)]
         public DateTime CreatedAt { get; set; }
+
+        [DataMember(Order = 10)]
+        public DateTime RegisterDate { get; set; }
+
+        [DataMember(Order = 11)]
+        public string CustomerId { get; set; }
+
+        [DataMember(Order = 12)]
+        public string UniqueId { get; set; }
+
+        [DataMember(Order = 13)]
+        public string Country { get; set; }
+
+        [DataMember(Order = 14)]
+        [LogMasked(PreserveLength = true, ShowFirst = 2, ShowLast = 2)]
+        public string Email { get; set; }
+
+        [DataMember(Order = 15)]
+        public ApprovedType Approved { get; set; }
     }
 
 }
