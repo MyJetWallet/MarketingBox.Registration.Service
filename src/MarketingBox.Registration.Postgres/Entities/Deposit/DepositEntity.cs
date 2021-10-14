@@ -17,4 +17,14 @@ namespace MarketingBox.Registration.Postgres.Entities.Deposit
         public ApprovedType Approved { get; set; }
         public DateTime? ConvertionDate { get; set; }
     }
+
+    public enum ApprovedType
+    {
+        Unknown = 0,
+        Declined = 1,
+        Approved = 2,
+        ApprovedManually = 3,
+        ApprovedFromCrm = 4
+    }
+
 }
