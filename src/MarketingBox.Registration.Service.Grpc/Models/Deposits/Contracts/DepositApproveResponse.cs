@@ -63,6 +63,9 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Deposits.Contracts
         [DataMember(Order = 18)]
         public ResultCode Status { get; set; }
 
+        [DataMember(Order = 19)]
+        public long DepositId { get; set; }
+
         [DataMember(Order = 100)]
         public Error Error { get; set; }
 

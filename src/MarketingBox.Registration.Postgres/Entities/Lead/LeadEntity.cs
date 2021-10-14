@@ -13,6 +13,7 @@ namespace MarketingBox.Registration.Postgres.Entities.Lead
         public string Email { get; set; }
         public string Phone { get; set; }
         public string Ip { get; set; }
+        public string Country { get; set; }
         public LeadBrandRegistrationInfo BrandRegistrationInfo { get; set; }
         public LeadAdditionalInfo AdditionalInfo { get; set; }
         public LeadType Type { get; set; }

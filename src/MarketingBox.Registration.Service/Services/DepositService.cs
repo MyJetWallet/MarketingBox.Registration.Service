@@ -45,10 +45,6 @@ namespace MarketingBox.Registration.Service.Services
                     return new DepositCreateResponse() { Error = new Error() { Message = "Internal error", Type = ErrorType.Unknown } };
                 }
 
-
-                await _publisherDepositUpdated.PublishAsync(MapToMessage(existingLeadEntity));
-                _logger.LogInformation("Sent lead created to service bus {@context}", request);
-                
                 var depositEntity = new DepositEntity()
                 {
                     TenantId = existingLeadEntity.TenantId,
@@ -58,10 +54,16 @@ namespace MarketingBox.Registration.Service.Services
                     CustomerId = request.CustomerId,
                     Sequence = existingLeadEntity.Sequence,
                     AffiliateId = existingLeadEntity.BrandRegistrationInfo.AffiliateId,
-                    CreatedAt = request.CreatedAt
+                    CreatedAt = request.CreatedAt,
+                    LeadId = existingLeadEntity.LeadId,
+                    Approved = ApprovedType.Unknown,
                 };
+
                 await ctx.Deposits.AddAsync(depositEntity);
                 await ctx.SaveChangesAsync();
+
+                await _publisherDepositUpdated.PublishAsync(MapToMessage(existingLeadEntity, depositEntity));
+                _logger.LogInformation("Sent lead created to service bus {@context}", request);
 
                 return MapToGrpc(depositEntity, request);
             }
@@ -90,19 +92,29 @@ namespace MarketingBox.Registration.Service.Services
             };
         }
 
-        private static DepositUpdateMessage MapToMessage(LeadEntity leadEntity)
+        private static DepositUpdateMessage MapToMessage(LeadEntity lead, 
+            DepositEntity deposit)
         {
             return new DepositUpdateMessage()
             {
-                TenantId = leadEntity.TenantId,
-                BrandId = leadEntity.BrandRegistrationInfo.BrandId,
-                BrandName = leadEntity.BrandRegistrationInfo.Brand,
-                AffiliateId = leadEntity.BrandRegistrationInfo.AffiliateId,
-                BoxId = leadEntity.BrandRegistrationInfo.BoxId,
-                CampaignId = leadEntity.BrandRegistrationInfo.CampaignId,
-                Sequence = leadEntity.Sequence,
-                LeadId = leadEntity.LeadId,
+                TenantId = lead.TenantId,
+                BrandId = lead.BrandRegistrationInfo.BrandId,
+                BrandName = lead.BrandRegistrationInfo.Brand,
+                AffiliateId = lead.BrandRegistrationInfo.AffiliateId,
+                BoxId = lead.BrandRegistrationInfo.BoxId,
+                CampaignId = lead.BrandRegistrationInfo.CampaignId,
+                Sequence = lead.Sequence,
+                LeadId = lead.LeadId,
                 CreatedAt = DateTime.UtcNow,
+                Email = lead.Email,
+                CustomerId = lead.BrandRegistrationInfo.CustomerId,
+                UniqueId = lead.UniqueId,
+                Country = lead.Country,
+                BrandStatus = lead.Status.ToString(),
+                RegisterDate = lead.CreatedAt.UtcDateTime,
+                DepositId = deposit.DepositId,
+                Approved = (MarketingBox.Registration.Service.Messages.Common.ApprovedType)deposit.Approved,
+                ConversionDate = deposit.ConvertionDate,
             };
         }
     }

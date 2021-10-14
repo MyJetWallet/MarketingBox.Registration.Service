@@ -59,6 +59,9 @@ namespace MarketingBox.Registration.Service.Messages.Deposits
 
         [DataMember(Order = 17)]
         public string BrandStatus { get; set; }
+
+        [DataMember(Order = 18)]
+        public long DepositId { get; set; }
     }
 
 }

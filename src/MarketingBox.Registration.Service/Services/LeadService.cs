@@ -121,6 +121,8 @@ namespace MarketingBox.Registration.Service.Services
                 Phone = request.GeneralInfo.Phone,
                 Status = LeadStatusDb.New,
                 Type = LeadTypeDb.Unsigned,
+                //TODO: Как определять страну?
+                Country = "PL",
                 Sequence = 0,
                 BrandRegistrationInfo = new Postgres.Entities.Lead.LeadBrandRegistrationInfo()
                 {
@@ -255,7 +257,7 @@ namespace MarketingBox.Registration.Service.Services
             }
             catch (Exception e)
             {
-                _logger.LogWarning("Can't TryGetPartnerInfo {@context}", leadCreateRequest);
+                _logger.LogWarning("Can't TryGetPartnerInfo {@Context} {@Erroe}", leadCreateRequest, e.Message);
                 retValue = false;
             }
 

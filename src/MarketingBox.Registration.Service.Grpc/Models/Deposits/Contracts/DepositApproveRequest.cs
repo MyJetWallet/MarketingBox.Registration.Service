@@ -11,15 +11,9 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Deposits.Contracts
         public string TenantId { get; set; }
 
         [DataMember(Order = 2)]
-        public string CustomerId { get; set; }
-
-        [DataMember(Order = 3)]
         public long DepositId { get; set; }
 
-        [DataMember(Order = 4)]
+        [DataMember(Order = 3)]
         public ApproveMode Mode { get; set; }
-
-        [DataMember(Order = 5)]
-        public DateTime CreatedAt { get; set; }
     }
 }

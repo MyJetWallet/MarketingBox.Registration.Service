@@ -1,19 +1,21 @@
-﻿namespace MarketingBox.Registration.Postgres.Entities.Lead
+﻿using JetBrains.Annotations;
+
+namespace MarketingBox.Registration.Postgres.Entities.Lead
 {
     public class LeadAdditionalInfo
     {
-        public string So { get; set; }
-        public string Sub { get; set; }
-        public string Sub1 { get; set; }
-        public string Sub2 { get; set; }
-        public string Sub3 { get; set; }
-        public string Sub4 { get; set; }
-        public string Sub5 { get; set; }
-        public string Sub6 { get; set; }
-        public string Sub7 { get; set; }
-        public string Sub8 { get; set; }
-        public string Sub9 { get; set; }
-        public string Sub10 { get; set; }
+        [CanBeNull] public string So { get; set; }
+        [CanBeNull] public string Sub { get; set; }
+        [CanBeNull] public string Sub1 { get; set; }
+        [CanBeNull] public string Sub2 { get; set; }
+        [CanBeNull] public string Sub3 { get; set; }
+        [CanBeNull] public string Sub4 { get; set; }
+        [CanBeNull] public string Sub5 { get; set; }
+        [CanBeNull] public string Sub6 { get; set; }
+        [CanBeNull] public string Sub7 { get; set; }
+        [CanBeNull] public string Sub8 { get; set; }
+        [CanBeNull] public string Sub9 { get; set; }
+        [CanBeNull] public string Sub10 { get; set; }
     }
 
 }
