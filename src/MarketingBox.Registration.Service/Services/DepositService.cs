@@ -94,7 +94,7 @@ namespace MarketingBox.Registration.Service.Services
                             Type = ErrorType.InvalidParameter
                         }
                     };
-
+                var lead = await ctx.Leads.FirstOrDefaultAsync(x => x.LeadId == deposit.LeadId);
                 if (deposit.Approved == ApprovedType.Unknown)
                 {
                     deposit.Approved = request.Mode switch
@@ -109,13 +109,13 @@ namespace MarketingBox.Registration.Service.Services
                 }
                 else
                 {
+                    await _publisherDepositUpdated.PublishAsync(MapToMessage(lead, deposit));
                     return new DepositApproveResponse() {Error = new Error()
                     {
                         Message = $"This deposit can not be approved. Current status is {deposit.Approved}", Type = ErrorType.InvalidParameter
                     }};
                 }
 
-                var lead = await ctx.Leads.FirstOrDefaultAsync(x => x.LeadId == deposit.LeadId);
                 var rowsCount = await ctx.Deposits.Upsert(deposit)
                     .AllowIdentityMatch()
                     .UpdateIf(prev => prev.Sequence < deposit.Sequence)
@@ -132,6 +132,8 @@ namespace MarketingBox.Registration.Service.Services
                         }
                     };
                 }
+
+                await _publisherDepositUpdated.PublishAsync(MapToMessage(lead, deposit));
 
                 return new DepositApproveResponse()
                 {
