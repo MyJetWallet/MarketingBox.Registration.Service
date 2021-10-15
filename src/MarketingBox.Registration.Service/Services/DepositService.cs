@@ -151,7 +151,7 @@ namespace MarketingBox.Registration.Service.Services
                         RegisterDate = lead.CreatedAt.UtcDateTime,
                         Sequence = deposit.Sequence,
                         TenantId = deposit.TenantId,
-                        UniqueId = lead.UniqueId
+                        UniqueId = lead.UniqueId,
                     }
                 };
             }
