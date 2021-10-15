@@ -117,6 +117,7 @@ namespace MarketingBox.Registration.Service.Services
 
                 var lead = await ctx.Leads.FirstOrDefaultAsync(x => x.LeadId == deposit.LeadId);
                 var rowsCount = await ctx.Deposits.Upsert(deposit)
+                    .AllowIdentityMatch()
                     .UpdateIf(prev => prev.Sequence < deposit.Sequence)
                     .RunAsync();
 
