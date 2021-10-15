@@ -183,15 +183,15 @@ namespace MarketingBox.Registration.Service.Services
         {
             return new DepositUpdateMessage()
             {
-                TenantId = lead.TenantId,
-                BrandId = lead.BrandRegistrationInfo.BrandId,
+                TenantId = deposit.TenantId,
+                BrandId = deposit.BrandId,
                 BrandName = lead.BrandRegistrationInfo.Brand,
-                AffiliateId = lead.BrandRegistrationInfo.AffiliateId,
-                BoxId = lead.BrandRegistrationInfo.BoxId,
-                CampaignId = lead.BrandRegistrationInfo.CampaignId,
-                Sequence = lead.Sequence,
-                LeadId = lead.LeadId,
-                CreatedAt = DateTime.UtcNow,
+                AffiliateId = deposit.AffiliateId,
+                BoxId = deposit.BoxId,
+                CampaignId = deposit.CampaignId,
+                Sequence = deposit.Sequence,
+                LeadId = deposit.LeadId,
+                CreatedAt = deposit.CreatedAt.UtcDateTime,
                 Email = lead.Email,
                 CustomerId = lead.BrandRegistrationInfo.CustomerId,
                 UniqueId = lead.UniqueId,
