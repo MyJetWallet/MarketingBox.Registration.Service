@@ -8,6 +8,7 @@
         InvalidEmail = 3,
         InvalidUserNameOrPassword = 4,
         InvalidCountry = 5,
-        InvalidPersonalData = 6
+        InvalidPersonalData = 6,
+        AlreadyUpdated = 7
     }
 }

@@ -56,6 +56,7 @@ namespace MarketingBox.Registration.Postgres
             modelBuilder.Entity<DepositEntity>().ToTable(DepositTableName);
             modelBuilder.Entity<DepositEntity>().HasKey(e => e.DepositId);
             modelBuilder.Entity<DepositEntity>().HasIndex(e => new { e.TenantId, e.DepositId});
+            modelBuilder.Entity<DepositEntity>().HasIndex(e => new { e.AffiliateId, e.LeadId}).IsUnique(true);
         }
 
         public override void Dispose()

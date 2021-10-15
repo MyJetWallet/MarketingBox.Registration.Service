@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using MarketingBox.Registration.Postgres.Entities.Deposit;
 using MarketingBox.Registration.Postgres.Entities.Lead;
+using MarketingBox.Registration.Service.Domain.Extensions;
 using MarketingBox.Registration.Service.Grpc.Models.Common;
 using MarketingBox.Registration.Service.Grpc.Models.Deposits.Contracts;
 using MarketingBox.Registration.Service.Messages.Deposits;
@@ -75,9 +76,91 @@ namespace MarketingBox.Registration.Service.Services
             }
         }
 
-        public Task<DepositApproveResponse> ApproveDepositAsync(DepositApproveRequest request)
+        public async Task<DepositApproveResponse> ApproveDepositAsync(DepositApproveRequest request)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation("Approving a deposit {@context}", request);
+            using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
+
+            try
+            {
+                var deposit = await ctx.Deposits.FirstOrDefaultAsync(x => x.DepositId == request.DepositId && x.TenantId == request.TenantId);
+
+                if (deposit == null)
+                    return new DepositApproveResponse()
+                    {
+                        Error = new Error()
+                        {
+                            Message = "Deposit with id does not exist",
+                            Type = ErrorType.InvalidParameter
+                        }
+                    };
+
+                if (deposit.Approved == ApprovedType.Unknown)
+                {
+                    deposit.Approved = request.Mode switch
+                    {
+                        ApproveMode.Approve => ApprovedType.Approved,
+                        ApproveMode.ApproveManually => ApprovedType.ApprovedManually,
+                        ApproveMode.ApproveFromCrm => ApprovedType.ApprovedFromCrm,
+                        _ => throw new ArgumentOutOfRangeException(nameof(request.Mode), request.Mode, null)
+                    };
+                    deposit.ConvertionDate = DateTimeOffset.UtcNow;
+                    deposit.Sequence++;
+                }
+                else
+                {
+                    return new DepositApproveResponse() {Error = new Error()
+                    {
+                        Message = $"This deposit can not be approved. Current status is {deposit.Approved}", Type = ErrorType.InvalidParameter
+                    }};
+                }
+
+                var lead = await ctx.Leads.FirstOrDefaultAsync(x => x.LeadId == deposit.LeadId);
+                var rowsCount = await ctx.Deposits.Upsert(deposit)
+                    .UpdateIf(prev => prev.Sequence < deposit.Sequence)
+                    .RunAsync();
+
+                if (rowsCount == 0)
+                {
+                    return new DepositApproveResponse()
+                    {
+                        Error = new Error()
+                        {
+                            Message = "Deposit was updated, try to use most recent version",
+                            Type = ErrorType.AlreadyUpdated
+                        }
+                    };
+                }
+
+                return new DepositApproveResponse()
+                {
+                    Deposit = new DepositResponse()
+                    {
+                        CreatedAt = deposit.CreatedAt.UtcDateTime,
+                        AffiliateId = deposit.AffiliateId,
+                        LeadId = deposit.LeadId,
+                        Approved = deposit.Approved.MapEnum<MarketingBox.Registration.Service.Grpc.Models.Common.ApproveResult>(),
+                        BoxId = deposit.BoxId,
+                        BrandId = deposit.BrandId,
+                        CampaignId = deposit.CampaignId,
+                        ConversionDate = deposit.ConvertionDate?.UtcDateTime,
+                        Country = lead.Country,
+                        CustomerId = deposit.CustomerId,
+                        DepositId = deposit.DepositId,
+                        Email = lead.Email,
+                        RegisterDate = lead.CreatedAt.UtcDateTime,
+                        Sequence = deposit.Sequence,
+                        TenantId = deposit.TenantId,
+                        UniqueId = lead.UniqueId
+                    }
+                };
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error approving a deposit {@context}", request);
+
+                return new DepositApproveResponse() { Error = new Error() { Message = "Internal error", Type = ErrorType.Unknown } };
+            }
         }
 
         private static DepositCreateResponse MapToGrpc(DepositEntity depositEntity, 
@@ -114,7 +197,7 @@ namespace MarketingBox.Registration.Service.Services
                 RegisterDate = lead.CreatedAt.UtcDateTime,
                 DepositId = deposit.DepositId,
                 Approved = (MarketingBox.Registration.Service.Messages.Common.ApprovedType)deposit.Approved,
-                ConversionDate = deposit.ConvertionDate,
+                ConversionDate = deposit.ConvertionDate?.UtcDateTime,
             };
         }
     }

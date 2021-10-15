@@ -15,7 +15,7 @@ namespace MarketingBox.Registration.Postgres.Entities.Deposit
         public DateTimeOffset CreatedAt { get; set; }
         public long Sequence { get; set; }
         public ApprovedType Approved { get; set; }
-        public DateTime? ConvertionDate { get; set; }
+        public DateTimeOffset? ConvertionDate { get; set; }
     }
 
     public enum ApprovedType
