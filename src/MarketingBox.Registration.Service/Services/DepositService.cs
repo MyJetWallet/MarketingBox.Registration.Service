@@ -11,6 +11,7 @@ using MarketingBox.Registration.Service.Domain.Extensions;
 using MarketingBox.Registration.Service.Grpc.Models.Common;
 using MarketingBox.Registration.Service.Grpc.Models.Deposits.Contracts;
 using MarketingBox.Registration.Service.Messages.Deposits;
+using MyJetWallet.Sdk.ServiceBus;
 
 namespace MarketingBox.Registration.Service.Services
 {
@@ -18,12 +19,12 @@ namespace MarketingBox.Registration.Service.Services
     {
         private readonly ILogger<DepositService> _logger;
         private readonly DbContextOptionsBuilder<DatabaseContext> _dbContextOptionsBuilder;
-        private readonly IPublisher<DepositUpdateMessage> _publisherDepositUpdated;
+        private readonly IServiceBusPublisher<DepositUpdateMessage> _publisherDepositUpdated;
 
 
         public DepositService(ILogger<DepositService> logger,
             DbContextOptionsBuilder<DatabaseContext> dbContextOptionsBuilder,
-            IPublisher<DepositUpdateMessage> publisherDepositUpdated)
+            IServiceBusPublisher<DepositUpdateMessage> publisherDepositUpdated)
         {
             _logger = logger;
             _dbContextOptionsBuilder = dbContextOptionsBuilder;

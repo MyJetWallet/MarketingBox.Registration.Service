@@ -10,7 +10,6 @@ using MarketingBox.Registration.Service.Messages.Deposits;
 using MarketingBox.Registration.Service.Messages.Leads;
 using MarketingBox.Registration.Service.MyNoSql.Leads;
 using MyJetWallet.Sdk.NoSql;
-using MyJetWallet.Sdk.Service;
 using MyJetWallet.Sdk.ServiceBus;
 using MyNoSqlServer.Abstractions;
 using MyNoSqlServer.DataReader;
@@ -56,10 +55,10 @@ namespace MarketingBox.Registration.Service.Modules
 
             #region Leads
 
-            // publisher (IPublisher<LeadUpdateMessage>)
+            // publisher (IServiceBusPublisher<LeadUpdateMessage>)
             builder.RegisterMyServiceBusPublisher<LeadUpdateMessage>(serviceBusClient, Topics.LeadUpdateTopic, false);
 
-            // publisher (IPublisher<LeadUpdateMessage>)
+            // publisher (IServiceBusPublisher<LeadUpdateMessage>)
             builder.RegisterMyServiceBusPublisher<DepositUpdateMessage>(serviceBusClient, Topics.DepositUpdateTopic, false);
 
             // register writer (IMyNoSqlServerDataWriter<LeadNoSql>)

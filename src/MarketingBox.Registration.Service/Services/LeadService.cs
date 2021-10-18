@@ -1,5 +1,4 @@
-﻿using DotNetCoreDecorators;
-using MarketingBox.Registration.Postgres;
+﻿using MarketingBox.Registration.Postgres;
 using MarketingBox.Registration.Service.Grpc;
 using MarketingBox.Registration.Service.MyNoSql.Leads;
 using Microsoft.EntityFrameworkCore;
@@ -18,16 +17,16 @@ using MarketingBox.Registration.Postgres.Entities.Lead;
 using MarketingBox.Registration.Service.Domain.Extensions;
 using MarketingBox.Registration.Service.Extensions;
 using MarketingBox.Registration.Service.Grpc.Models.Common;
-using MarketingBox.Registration.Service.Grpc.Models.Leads;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts;
 using MarketingBox.Registration.Service.Messages.Leads;
+using MyJetWallet.Sdk.ServiceBus;
 using Z.EntityFramework.Plus;
 using LeadAdditionalInfoMessage = MarketingBox.Registration.Service.Messages.Leads.LeadAdditionalInfo;
 using LeadBrandRegistrationInfoMessage = MarketingBox.Registration.Service.Messages.Leads.LeadBrandRegistrationInfo;
 using LeadGeneralInfoMessage = MarketingBox.Registration.Service.Messages.Leads.LeadGeneralInfo;
 using LeadRouteInfoMessage = MarketingBox.Registration.Service.Messages.Leads.LeadRouteInfo;
 
-using LeadAdditionalInfoDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadAdditionalInfo;
+
 using LeadBrandRegistrationInfo = MarketingBox.Registration.Service.Grpc.Models.Leads.LeadBrandRegistrationInfo;
 using LeadEntityDb = MarketingBox.Registration.Postgres.Entities.Lead.LeadEntity;
 using LeadGeneralInfo = MarketingBox.Registration.Service.Grpc.Models.Leads.LeadGeneralInfo;
@@ -44,7 +43,7 @@ namespace MarketingBox.Registration.Service.Services
     {
         private readonly ILogger<LeadService> _logger;
         private readonly DbContextOptionsBuilder<DatabaseContext> _dbContextOptionsBuilder;
-        private readonly IPublisher<LeadUpdateMessage> _publisherLeadUpdated;
+        private readonly IServiceBusPublisher<LeadUpdateMessage> _publisherLeadUpdated;
         private readonly IMyNoSqlServerDataWriter<LeadNoSql> _myNoSqlServerDataWriter;
         private readonly IMyNoSqlServerDataReader<BoxIndexNoSql> _boxIndexNoSqlServerDataReader;
         private readonly IMyNoSqlServerDataReader<BrandNoSql> _brandNoSqlServerDataReader;
@@ -56,7 +55,7 @@ namespace MarketingBox.Registration.Service.Services
 
         public LeadService(ILogger<LeadService> logger,
             DbContextOptionsBuilder<DatabaseContext> dbContextOptionsBuilder,
-            IPublisher<LeadUpdateMessage> publisherLeadUpdated,
+            IServiceBusPublisher<LeadUpdateMessage> publisherLeadUpdated,
             IMyNoSqlServerDataWriter<LeadNoSql> myNoSqlServerDataWriter,
             IMyNoSqlServerDataReader<BoxIndexNoSql> boxIndexNoSqlServerDataReader,
             IMyNoSqlServerDataReader<BrandNoSql> brandNoSqlServerDataReader,
