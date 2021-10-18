@@ -24,7 +24,7 @@ namespace MarketingBox.Registration.Service.Modules
             var serviceBusClient = builder
                 .RegisterMyServiceBusTcpClient(
                     Program.ReloadedSettings(e => e.MarketingBoxServiceBusHostPort),
-                    ApplicationEnvironment.HostName, Program.LogFactory);
+                    Program.LogFactory);
 
             var noSqlClient = builder.CreateNoSqlClient(Program.ReloadedSettings(e => e.MyNoSqlReaderHostPort));
 
