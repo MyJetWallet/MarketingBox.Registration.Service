@@ -1,95 +1,54 @@
-using System;
 using MarketingBox.Integration.Service.Grpc.Models.Leads;
 using MarketingBox.Integration.Service.Grpc.Models.Leads.Contracts;
-using MarketingBox.Registration.Postgres.Entities.Lead;
-using MarketingBox.Registration.Service.Grpc.Models.Leads;
+using MarketingBox.Registration.Service.Domain.Leads;
 using MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts;
-using MarketingBox.Registration.Service.Services;
 
 namespace MarketingBox.Registration.Service.Extensions
 {
     public static class MapperExtensions
     {
-        public static LeadEntity CreateLeadEntity(
-            this LeadCreateRequest request, 
-            string tenantId, string brandName, long campaignId)
+
+        public static string GeneratorId(this LeadCreateRequest request)
         {
-            return  new LeadEntity()
-            {
-                TenantId = tenantId,
-                UniqueId = LeadService.UniqueIdGenerator.GetNextId(),
-                CreatedAt = request.GeneralInfo.CreatedAt,
-                FirstName = request.GeneralInfo.FirstName,
-                LastName = request.GeneralInfo.LastName,
-                Email = request.GeneralInfo.Email,
-                Ip = request.GeneralInfo.Ip,
-                Password = request.GeneralInfo.Password,
-                Phone = request.GeneralInfo.Phone,
-                Status = LeadStatus.New,
-                Type = LeadType.Unsigned,
-                Sequence = 0,
-                BrandRegistrationInfo = new Postgres.Entities.Lead.LeadBrandRegistrationInfo()
-                {
-
-                    AffiliateId = request.AuthInfo.AffiliateId,
-                    BoxId = request.AuthInfo.BoxId,
-                    Brand = brandName,
-                    CampaignId = campaignId
-                },
-                AdditionalInfo = new Postgres.Entities.Lead.LeadAdditionalInfo()
-                {
-                    So = request.AdditionalInfo.So,
-                    Sub = request.AdditionalInfo.Sub,
-                    Sub1 = request.AdditionalInfo.Sub1,
-                    Sub2 = request.AdditionalInfo.Sub2,
-                    Sub3 = request.AdditionalInfo.Sub3,
-                    Sub4 = request.AdditionalInfo.Sub4,
-                    Sub5 = request.AdditionalInfo.Sub5,
-                    Sub6 = request.AdditionalInfo.Sub6,
-                    Sub7 = request.AdditionalInfo.Sub7,
-                    Sub8 = request.AdditionalInfo.Sub8,
-                    Sub9 = request.AdditionalInfo.Sub9,
-                    Sub10 = request.AdditionalInfo.Sub10,
-                }
-            };
+            return request.GeneralInfo.Email + "_" +
+                   request.GeneralInfo.FirstName + "_" +
+                   request.GeneralInfo.LastName + "_" +
+                   request.GeneralInfo.Ip + "_";
         }
-
         public static RegistrationRequest CreateIntegrationRequest(
-            this LeadEntity leadEntity, long brandId)
+            this Lead lead)
         {
             return new RegistrationRequest()
             {
-                TenantId = leadEntity.TenantId,
-                LeadId = leadEntity.LeadId,
-                LeadUniqueId = leadEntity.UniqueId,
-                BrandName = leadEntity.BrandRegistrationInfo.Brand,
-                BrandId = brandId,//leadEntity.BrandRegistrationInfo.BrandId,
+                TenantId = lead.TenantId,
+                LeadId = lead.LeadId,
+                LeadUniqueId = lead.UniqueId,
+                BrandName = lead.RouteInfo.Brand,
+                BrandId = lead.RouteInfo.BrandId,
                 Info = new RegistrationLeadInfo()
                 {
-                    FirstName = leadEntity.FirstName,
-                    LastName = leadEntity.LastName,
-                    Email = leadEntity.Email,
-                    Ip = leadEntity.Ip,
-                    Phone = leadEntity.Phone,
-                    Password = leadEntity.Password,
-                    //TODO: Add country
-                    Country = "PL",
-                    Language = "EN"
+                    FirstName = lead.FirstName,
+                    LastName = lead.LastName,
+                    Email = lead.Email,
+                    Ip = lead.Ip,
+                    Phone = lead.Phone,
+                    Password = lead.Password,
+                    Country = lead.Country,
                 },
                 AdditionalInfo = new RegistrationLeadAdditionalInfo()
                 {
-                    So = string.IsNullOrEmpty(leadEntity.AdditionalInfo.So) ? string.Empty : leadEntity.AdditionalInfo.So,
-                    Sub = string.IsNullOrEmpty(leadEntity.AdditionalInfo.Sub) ? string.Empty : leadEntity.AdditionalInfo.Sub,
-                    Sub1 = string.IsNullOrEmpty(leadEntity.AdditionalInfo.Sub1) ? string.Empty : leadEntity.AdditionalInfo.Sub1,
-                    Sub2 = string.IsNullOrEmpty(leadEntity.AdditionalInfo.Sub2) ? string.Empty : leadEntity.AdditionalInfo.Sub2,
-                    Sub3 = string.IsNullOrEmpty(leadEntity.AdditionalInfo.Sub3) ? string.Empty : leadEntity.AdditionalInfo.Sub3,
-                    Sub4 = string.IsNullOrEmpty(leadEntity.AdditionalInfo.Sub4) ? string.Empty : leadEntity.AdditionalInfo.Sub4,
-                    Sub5 = string.IsNullOrEmpty(leadEntity.AdditionalInfo.Sub5) ? string.Empty : leadEntity.AdditionalInfo.Sub5,
-                    Sub6 = string.IsNullOrEmpty(leadEntity.AdditionalInfo.Sub6) ? string.Empty : leadEntity.AdditionalInfo.Sub6,
-                    Sub7 = string.IsNullOrEmpty(leadEntity.AdditionalInfo.Sub7) ? string.Empty : leadEntity.AdditionalInfo.Sub7,
-                    Sub8 = string.IsNullOrEmpty(leadEntity.AdditionalInfo.Sub8) ? string.Empty : leadEntity.AdditionalInfo.Sub8,
-                    Sub9 = string.IsNullOrEmpty(leadEntity.AdditionalInfo.Sub9) ? string.Empty : leadEntity.AdditionalInfo.Sub9,
-                    Sub10 = string.IsNullOrEmpty(leadEntity.AdditionalInfo.Sub10) ? string.Empty : leadEntity.AdditionalInfo.Sub10,
+                    So = lead.AdditionalInfo?.So,
+                    Sub = lead.AdditionalInfo?.Sub,
+                    Sub1 = lead.AdditionalInfo?.Sub1,
+                    Sub2 = lead.AdditionalInfo?.Sub2,
+                    Sub3 = lead.AdditionalInfo?.Sub3,
+                    Sub4 = lead.AdditionalInfo?.Sub4,
+                    Sub5 = lead.AdditionalInfo?.Sub5,
+                    Sub6 = lead.AdditionalInfo?.Sub6,
+                    Sub7 = lead.AdditionalInfo?.Sub7,
+                    Sub8 = lead.AdditionalInfo?.Sub8,
+                    Sub9 = lead.AdditionalInfo?.Sub9,
+                    Sub10 = lead.AdditionalInfo?.Sub10,
                 },
             };
         }

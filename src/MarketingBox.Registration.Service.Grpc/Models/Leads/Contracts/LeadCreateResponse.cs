@@ -26,35 +26,5 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts
 
         [DataMember(Order = 100)]
         public Error Error { get; set; }
-
-        public static LeadCreateResponse Successfully(LeadBrandRegistrationInfo brandRegistrationInfo, long leadId,
-            string brand)
-        {
-            return new LeadCreateResponse()
-            {
-                Status = ResultCode.CompletedSuccessfully,
-                Message = brandRegistrationInfo.LoginUrl,
-                BrandInfo = new LeadBrandInfo()
-                {
-                    Status = ResultCode.CompletedSuccessfully,
-                    Data = brandRegistrationInfo,
-                    Brand = brand
-                },
-                FallbackUrl = string.Empty,
-                LeadId = leadId,
-                
-            };
-        }
-
-        public static LeadCreateResponse Failed(Error error, LeadGeneralInfo originalData)
-        {
-            return new LeadCreateResponse()
-            {
-                Status = ResultCode.Failed,
-                Message = error.Message,
-                Error = error,
-                OriginalData = originalData
-            };
-        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using Destructurama.Attributed;
+using MarketingBox.Registration.Service.Messages.Common;
 
 namespace MarketingBox.Registration.Service.Messages.Leads
 {
@@ -36,5 +37,26 @@ namespace MarketingBox.Registration.Service.Messages.Leads
 
         [DataMember(Order = 8)]
         public string Country { get; set; }
+
+        [DataMember(Order = 9)]
+        public long LeadId { get; set; }
+
+        [DataMember(Order = 10)]
+        public string UniqueId { get; set; }
+        
+        [DataMember(Order = 11)]
+        public LeadStatus Status { get; set; }
+
+        [DataMember(Order = 12)]
+        public LeadCrmStatus CrmCrmStatus { get; set; }
+
+        [DataMember(Order = 13)]
+        public DateTime? DepositDate { get; set; }
+
+        [DataMember(Order = 14)]
+        public DateTime? ConversionDate { get; set; }
+
+        [DataMember(Order = 15)]
+        public DateTime UpdatedAt { get; set; }
     }
 }

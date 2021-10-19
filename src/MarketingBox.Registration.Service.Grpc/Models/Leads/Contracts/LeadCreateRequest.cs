@@ -16,6 +16,5 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts
 
         [DataMember(Order = 4)]
         public LeadAdditionalInfo AdditionalInfo { get; set; }
-
     }
 }

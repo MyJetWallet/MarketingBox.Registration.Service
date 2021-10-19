@@ -1,6 +1,6 @@
-﻿namespace MarketingBox.Registration.Postgres.Entities.Lead
+﻿namespace MarketingBox.Registration.Service.Domain.Leads
 {
-    public enum LeadStatus
+    public enum LeadCrmStatus
     {
         New,
         FullyActivated,

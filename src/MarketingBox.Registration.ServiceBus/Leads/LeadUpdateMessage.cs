@@ -1,5 +1,5 @@
-﻿using System.Runtime.Serialization;
-using MarketingBox.Registration.Service.Messages.Common;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace MarketingBox.Registration.Service.Messages.Leads
 {
@@ -8,34 +8,20 @@ namespace MarketingBox.Registration.Service.Messages.Leads
     {
         [DataMember(Order = 1)]
         public string TenantId { get; set; }
-
+      
         [DataMember(Order = 2)]
-        public long LeadId { get; set; }
-
-        [DataMember(Order = 3)]
-        public string UniqueId { get; set; }
-        
-        [DataMember(Order = 4)]
-        public long Sequence { get; set; }
-
-        [DataMember(Order = 5)]
         public LeadGeneralInfo GeneralInfo { get; set; }
 
-        [DataMember(Order = 6)]
+        [DataMember(Order = 3)]
         public LeadRouteInfo RouteInfo { get; set; }
 
-        [DataMember(Order = 7)]
+        [DataMember(Order = 4)]
         public LeadAdditionalInfo AdditionalInfo { get; set; }
 
-        [DataMember(Order = 8)]
-        public LeadBrandRegistrationInfo RegistrationInfo { get; set; }
-
-        [DataMember(Order = 9)] 
-        public LeadType Type  { get; set; }
-
-        [DataMember(Order = 10)]
-        public LeadStatus CallStatus{ get; set; }
-
-
+        [DataMember(Order = 5)]
+        public LeadCustomerInfo CustomerInfo { get; set; }
+        
+        [DataMember(Order = 6)]
+        public long Sequence { get; set; }
     }
 }

@@ -1,5 +1,4 @@
-﻿using MarketingBox.Registration.Postgres.Entities.Deposit;
-using MarketingBox.Registration.Postgres.Entities.Lead;
+﻿using MarketingBox.Registration.Postgres.Entities.Lead;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -17,9 +16,9 @@ namespace MarketingBox.Registration.Postgres
 
         public DbSet<LeadEntity> Leads { get; set; }
 
-        private const string DepositTableName = "deposits";
+        private const string LeadIdGeneratorTableName = "leadidgenerator";
 
-        public DbSet<DepositEntity> Deposits { get; set; }
+        public DbSet<LeadIdGeneratorEntity> LeadIdGenerators { get; set; }
 
 
         public DatabaseContext(DbContextOptions options) : base(options)
@@ -40,23 +39,20 @@ namespace MarketingBox.Registration.Postgres
         {
             modelBuilder.HasDefaultSchema(Schema);
 
-            SetPartnerEntity(modelBuilder);
+            SetEntities(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
         }
 
-        private void SetPartnerEntity(ModelBuilder modelBuilder)
+        private void SetEntities(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<LeadEntity>().ToTable(LeadTableName);
             modelBuilder.Entity<LeadEntity>().HasKey(e => e.LeadId);
-            modelBuilder.Entity<LeadEntity>().OwnsOne(x => x.BrandRegistrationInfo);   //modelBuilder.Entity<LeadEntity>().Ignore(x => x.GeneralInfo);
-            modelBuilder.Entity<LeadEntity>().OwnsOne(x => x.AdditionalInfo);
             modelBuilder.Entity<LeadEntity>().HasIndex(e => new {e.TenantId, e.LeadId});
 
-            modelBuilder.Entity<DepositEntity>().ToTable(DepositTableName);
-            modelBuilder.Entity<DepositEntity>().HasKey(e => e.DepositId);
-            modelBuilder.Entity<DepositEntity>().HasIndex(e => new { e.TenantId, e.DepositId});
-            modelBuilder.Entity<DepositEntity>().HasIndex(e => new { e.AffiliateId, e.LeadId}).IsUnique(true);
+            modelBuilder.Entity<LeadIdGeneratorEntity>().ToTable(LeadIdGeneratorTableName);
+            modelBuilder.Entity<LeadIdGeneratorEntity>().HasKey(e => e.LeadId);
+            modelBuilder.Entity<LeadIdGeneratorEntity>().HasIndex(e => new { e.TenantId, GenerateId = e.GeneratorId });
         }
 
         public override void Dispose()

@@ -46,7 +46,7 @@ namespace TestApp
             //{
             //    LeadId = leadCreated.LeadId,
             //    TenantId = leadCreated.TenantId,
-            //    GeneralInfo = request.GeneralInfo,
+            //    NoSqlInfo = request.NoSqlInfo,
             //    Sequence = 1
             //})).Lead;
 

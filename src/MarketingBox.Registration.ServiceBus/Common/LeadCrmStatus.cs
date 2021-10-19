@@ -1,6 +1,6 @@
-﻿namespace MarketingBox.Registration.Service.Domain.Lead
+﻿namespace MarketingBox.Registration.Service.Messages.Common
 {
-    public enum LeadStatus
+    public enum LeadCrmStatus
     {
         New,
         FullyActivated,

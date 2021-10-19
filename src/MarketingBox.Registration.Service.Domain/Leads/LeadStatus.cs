@@ -1,4 +1,4 @@
-﻿namespace MarketingBox.Registration.Service.MyNoSql.Leads
+﻿namespace MarketingBox.Registration.Service.Domain.Leads
 {
     public enum LeadStatus
     {

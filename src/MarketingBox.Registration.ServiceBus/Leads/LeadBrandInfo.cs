@@ -9,6 +9,6 @@ namespace MarketingBox.Registration.Service.Messages.Leads
         public string Status { get; set; }
 
         [DataMember(Order = 2)]
-        public LeadBrandRegistrationInfo Data { get; set; }
+        public LeadCustomerInfo Data { get; set; }
     }
 }

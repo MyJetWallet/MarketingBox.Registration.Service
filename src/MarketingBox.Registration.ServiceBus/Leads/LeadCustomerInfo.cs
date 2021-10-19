@@ -1,10 +1,9 @@
 ﻿using System.Runtime.Serialization;
-using Destructurama.Attributed;
 
-namespace MarketingBox.Registration.Service.Grpc.Models.Leads
+namespace MarketingBox.Registration.Service.Messages.Leads
 {
     [DataContract]
-    public class LeadBrandRegistrationInfo
+    public class LeadCustomerInfo
     {
         [DataMember(Order = 1)]
         public string CustomerId { get; set; }
