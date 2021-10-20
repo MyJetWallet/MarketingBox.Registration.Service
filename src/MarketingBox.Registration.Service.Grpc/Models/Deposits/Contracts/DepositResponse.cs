@@ -11,7 +11,7 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Deposits.Contracts
         public string TenantId { get; set; }
 
         [DataMember(Order = 2)]
-        public LeadGeneralInfo GeneralInfo { get; set; }
+        public DepositGeneralInfo GeneralInfo { get; set; }
 
         [DataMember(Order = 100)]
         public Error Error { get; set; }

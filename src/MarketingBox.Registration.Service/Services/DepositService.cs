@@ -92,7 +92,7 @@ namespace MarketingBox.Registration.Service.Services
             return new DepositResponse()
             {
                 TenantId = lead.TenantId,
-                GeneralInfo = new MarketingBox.Registration.Service.Grpc.Models.Leads.LeadGeneralInfo()
+                GeneralInfo = new MarketingBox.Registration.Service.Grpc.Models.Leads.DepositGeneralInfo()
                 {
                     Email = lead.LeadInfo.Email,
                     FirstName = lead.LeadInfo.FirstName,

@@ -6,15 +6,12 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads.Contracts
     public class LeadCreateRequest
     {
         [DataMember(Order = 1)]
-        public string TenantId { get; set; }
-
-        [DataMember(Order = 2)]
         public LeadGeneralInfo GeneralInfo { get; set; }
 
-        [DataMember(Order = 3)]
+        [DataMember(Order = 2)]
         public LeadAuthInfo AuthInfo { get; set; }
 
-        [DataMember(Order = 4)]
+        [DataMember(Order = 3)]
         public LeadAdditionalInfo AdditionalInfo { get; set; }
     }
 }

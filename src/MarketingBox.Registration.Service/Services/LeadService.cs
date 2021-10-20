@@ -82,7 +82,7 @@ namespace MarketingBox.Registration.Service.Services
 
             try
             {
-                var leadId = await _repository.GenerateLeadIdAsync(request.TenantId, request.GeneratorId());
+                var leadId = await _repository.GenerateLeadIdAsync(tenantId, request.GeneratorId());
                 var leadBrandRegistrationInfo = new Domain.Leads.LeadRouteInfo()
                 {
                     BrandId = brandId,
@@ -279,11 +279,11 @@ namespace MarketingBox.Registration.Service.Services
                         CustomerId = lead.CustomerInfo.CustomerId,
                         LoginUrl = lead.CustomerInfo.LoginUrl,
                         Token = lead.CustomerInfo.Token,
+                        Brand = lead.CustomerInfo.Brand
                     },
                 },
                 FallbackUrl = string.Empty,
                 LeadId = lead.LeadInfo.LeadId,
-
             };
         }
 
@@ -328,8 +328,7 @@ namespace MarketingBox.Registration.Service.Services
                     FirstName = original.FirstName,
                     Ip = original.Ip,
                     LastName = original.LastName,
-                    Phone = original.Phone,
-                    CreatedAt = original.CreatedAt,
+                    Phone = original.Phone
                 }
             };
         }

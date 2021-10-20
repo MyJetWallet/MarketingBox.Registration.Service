@@ -22,7 +22,7 @@ namespace TestApp
             var testTenant = "Test-Tenant";
             var lead = await leadService.CreateAsync(new LeadCreateRequest()
             {
-                TenantId = testTenant,
+                
             });
 
 
