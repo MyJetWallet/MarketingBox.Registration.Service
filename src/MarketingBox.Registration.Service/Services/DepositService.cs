@@ -8,7 +8,6 @@ using MarketingBox.Registration.Service.Domain.Repositories;
 using MarketingBox.Registration.Service.Extensions;
 using MarketingBox.Registration.Service.Grpc.Models.Common;
 using MarketingBox.Registration.Service.Grpc.Models.Deposits.Contracts;
-using MarketingBox.Registration.Service.Messages.Deposits;
 using MarketingBox.Registration.Service.Messages.Leads;
 using MarketingBox.Registration.Service.MyNoSql.Leads;
 using MyJetWallet.Sdk.ServiceBus;
@@ -20,19 +19,17 @@ namespace MarketingBox.Registration.Service.Services
     public class DepositService : IDepositService
     {
         private readonly ILogger<DepositService> _logger;
-        private readonly IServiceBusPublisher<DepositUpdateMessage> _publisherDepositUpdated;
+
         private readonly IServiceBusPublisher<LeadUpdateMessage> _publisherLeadUpdated;
         private readonly IMyNoSqlServerDataWriter<LeadNoSqlEntity> _myNoSqlServerDataWriter;
         private readonly ILeadRepository _repository;
 
         public DepositService(ILogger<DepositService> logger,
-            IServiceBusPublisher<DepositUpdateMessage> publisherDepositUpdated, 
             IServiceBusPublisher<LeadUpdateMessage> publisherLeadUpdated, 
             IMyNoSqlServerDataWriter<LeadNoSqlEntity> myNoSqlServerDataWriter,
             ILeadRepository repository)
         {
             _logger = logger;
-            _publisherDepositUpdated = publisherDepositUpdated;
             _publisherLeadUpdated = publisherLeadUpdated;
             _myNoSqlServerDataWriter = myNoSqlServerDataWriter;
             _repository = repository;

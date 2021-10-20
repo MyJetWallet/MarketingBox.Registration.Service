@@ -6,7 +6,6 @@ using MarketingBox.Affiliate.Service.MyNoSql.Campaigns;
 using MarketingBox.Affiliate.Service.MyNoSql.Partners;
 using MarketingBox.Integration.Service.Client;
 using MarketingBox.Registration.Service.Messages;
-using MarketingBox.Registration.Service.Messages.Deposits;
 using MarketingBox.Registration.Service.Messages.Leads;
 using MarketingBox.Registration.Service.MyNoSql.Leads;
 using MyJetWallet.Sdk.NoSql;
@@ -57,9 +56,6 @@ namespace MarketingBox.Registration.Service.Modules
 
             // publisher (IServiceBusPublisher<LeadUpdateMessage>)
             builder.RegisterMyServiceBusPublisher<LeadUpdateMessage>(serviceBusClient, Topics.LeadUpdateTopic, false);
-
-            // publisher (IServiceBusPublisher<LeadUpdateMessage>)
-            builder.RegisterMyServiceBusPublisher<DepositUpdateMessage>(serviceBusClient, Topics.DepositUpdateTopic, false);
 
             // register writer (IMyNoSqlServerDataWriter<LeadNoSqlEntity>)
             builder.RegisterMyNoSqlWriter<LeadNoSqlEntity>(Program.ReloadedSettings(e => e.MyNoSqlWriterUrl), LeadNoSqlEntity.TableName);
