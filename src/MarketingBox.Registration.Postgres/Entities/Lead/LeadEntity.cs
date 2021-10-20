@@ -35,6 +35,7 @@ namespace MarketingBox.Registration.Postgres.Entities.Lead
         public string CustomerInfoCustomerId { get; set; }
         public string CustomerInfoToken { get; set; }
         public string CustomerInfoLoginUrl { get; set; }
+        public string CustomerInfoBrand { get; set; }
         public LeadStatus Status { get; set; }
         public LeadCrmStatus CrmStatus { get; set; }
         public DateTimeOffset CreatedAt { get; set; }

@@ -82,24 +82,12 @@ namespace MarketingBox.Registration.Service.Services
             if (!TryGetPartnerInfo(request, out var tenantId, out var brandName, 
                 out var campaignId, out var apiKey, out var brandId))
             {
-                return FailedMapToGrpc(
-                    new Error()
-                    {
-                        Message = "Can't get partner info",
-                        Type = ErrorType.Unknown
-                    },
-                    request.GeneralInfo
-                );
+                return RegisterFailedMapToGrpc(request.GeneralInfo);
             }
 
             if (IsPartnerRequestInvalid(apiKey, request.AuthInfo.ApiKey))
             {
-                return FailedMapToGrpc(new Error()
-                {
-                    Message = "Invalid partner data",
-                    Type = ErrorType.InvalidParameter
-                },
-                    request.GeneralInfo);
+                return InvalidFailedMapToGrpc(request.GeneralInfo);
             }
 
             var leadId = await _repository.GetLeadIdAsync(request.TenantId, request.GeneratorId());
@@ -127,15 +115,14 @@ namespace MarketingBox.Registration.Service.Services
                 Sub10 = request.AdditionalInfo.Sub10,
 
             };
-
-            var lead = Lead.Create(tenantId, UniqueIdGenerator.GetNextId(), leadId,
+            try
+            {
+                var lead = Lead.Create(tenantId, UniqueIdGenerator.GetNextId(), leadId,
                 request.GeneralInfo.FirstName, request.GeneralInfo.LastName, request.GeneralInfo.Password,
                 request.GeneralInfo.Email, request.GeneralInfo.Phone, request.GeneralInfo.Ip,
                 request.GeneralInfo.Country,
                 leadBrandRegistrationInfo, leadAdditionalInfo, null);
 
-            try
-            {
                 await _repository.SaveAsync(lead);
 
                 await _publisherLeadUpdated.PublishAsync(MapToMessage(lead));
@@ -152,7 +139,8 @@ namespace MarketingBox.Registration.Service.Services
                     {
                         CustomerId = brandResponse.Data.CustomerId,
                         LoginUrl = brandResponse.Data.LoginUrl,
-                        Token = brandResponse.Data.Token
+                        Token = brandResponse.Data.Token,
+                        Brand = brandResponse.Data.Brand
                     });
                 }
 
@@ -195,26 +183,25 @@ namespace MarketingBox.Registration.Service.Services
             {
                 var boxIndexNoSql = _boxIndexNoSqlServerDataReader
                     .Get(BoxIndexNoSql.GeneratePartitionKey(leadCreateRequest.AuthInfo.BoxId)).FirstOrDefault();
-                tenantId = boxIndexNoSql.TenantId;
+                tenantId = boxIndexNoSql?.TenantId;
 
                 var campaignBox = _campaignBoxNoSqlServerDataReader
                     .Get(CampaignBoxNoSql.GeneratePartitionKey(leadCreateRequest.AuthInfo.BoxId)).FirstOrDefault();
 
-
                 var campaignNoSql = _campaignNoSqlServerDataReader.Get(
-                    CampaignNoSql.GeneratePartitionKey(boxIndexNoSql.TenantId),
+                    CampaignNoSql.GeneratePartitionKey(boxIndexNoSql?.TenantId),
                     CampaignNoSql.GenerateRowKey(campaignBox.CampaignId));
 
                 campaignId = campaignNoSql.Id;
 
-                var brandNoSql = _brandNoSqlServerDataReader.Get(BrandNoSql.GeneratePartitionKey(boxIndexNoSql.TenantId),
+                var brandNoSql = _brandNoSqlServerDataReader.Get(BrandNoSql.GeneratePartitionKey(boxIndexNoSql?.TenantId),
                     BrandNoSql.GenerateRowKey(campaignNoSql.BrandId));
 
                 brandName = brandNoSql.Name;
                 brandId = brandNoSql.BrandId;
 
                 var partner =
-                    _partnerNoSqlServerDataReader.Get(PartnerNoSql.GeneratePartitionKey(boxIndexNoSql.TenantId),
+                    _partnerNoSqlServerDataReader.Get(PartnerNoSql.GeneratePartitionKey(boxIndexNoSql?.TenantId),
                         PartnerNoSql.GenerateRowKey(leadCreateRequest.AuthInfo.AffiliateId));
 
                 partnerApiKey = partner.GeneralInfo.ApiKey;
@@ -294,6 +281,32 @@ namespace MarketingBox.Registration.Service.Services
                 LeadId = lead.LeadInfo.LeadId,
 
             };
+        }
+
+        private static LeadCreateResponse RegisterFailedMapToGrpc(
+            MarketingBox.Registration.Service.Grpc.Models.Leads.LeadGeneralInfo reneralInfo)
+        {
+            return FailedMapToGrpc(
+                new Error()
+                {
+                    Message = "Can't get partner info",
+                    Type = ErrorType.Unknown
+                },
+                reneralInfo
+            );
+        }
+
+        private static LeadCreateResponse InvalidFailedMapToGrpc(
+            MarketingBox.Registration.Service.Grpc.Models.Leads.LeadGeneralInfo reneralInfo)
+        {
+            return FailedMapToGrpc(
+                new Error()
+                {
+                    Message = "Invalid partner data",
+                    Type = ErrorType.InvalidParameter
+                },
+                reneralInfo
+            );
         }
 
         private static LeadCreateResponse FailedMapToGrpc(Error error, 
@@ -421,6 +434,13 @@ namespace MarketingBox.Registration.Service.Services
                         CampaignId = lead.RouteInfo.CampaignId,
                         BrandId = lead.RouteInfo.BrandId
                     },
+                    CustomerInfo = new MyNoSql.Leads.LeadCustomerInfo()
+                    {
+                        CustomerId = lead.CustomerInfo?.CustomerId,
+                        Token = lead.CustomerInfo?.Token,
+                        LoginUrl = lead.CustomerInfo?.LoginUrl,
+                        Brand = lead.CustomerInfo?.Brand
+                    }
                 });
         }
     }

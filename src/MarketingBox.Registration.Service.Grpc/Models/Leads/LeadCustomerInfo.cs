@@ -13,5 +13,8 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads
 
         [DataMember(Order = 3)]
         public string LoginUrl { get; set; }
+
+        [DataMember(Order = 4)]
+        public string Brand { get; set; }
     }
 }
