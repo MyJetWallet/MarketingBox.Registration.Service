@@ -11,16 +11,12 @@ namespace MarketingBox.Registration.Service.Domain.Leads
         public LeadAdditionalInfo AdditionalInfo { get; private set; }
         public LeadCustomerInfo CustomerInfo { get; private set; }
 
-        private Lead(string tenantId, string uniqueId, long leadId, string firstName, string lastName, string password, 
-            string email, string phone, string ip, string country, 
-            LeadCrmStatus crmStatus, DateTimeOffset createdAt, 
-            DateTimeOffset? depositDate, DateTimeOffset? conversionDate, DateTimeOffset updatedAt, 
-            long sequence, LeadRouteInfo routeInfo, LeadAdditionalInfo additionalInfo, LeadCustomerInfo customerInfo)
+        private Lead(string tenantId, long sequence, LeadGeneralInfo leadGeneralInfo, 
+             LeadRouteInfo routeInfo, LeadAdditionalInfo additionalInfo, LeadCustomerInfo customerInfo)
         {
             TenantId = tenantId;
-            LeadInfo = new LeadGeneralInfo(uniqueId, leadId, firstName, lastName, password, email, phone, 
-                ip, country, LeadStatus.Created, crmStatus, createdAt, depositDate, conversionDate, updatedAt);
             Sequence = sequence;
+            LeadInfo = leadGeneralInfo;
             RouteInfo = routeInfo;
             AdditionalInfo = additionalInfo;
             CustomerInfo = customerInfo;
@@ -53,28 +49,14 @@ namespace MarketingBox.Registration.Service.Domain.Leads
             ChangeStatus(LeadStatus.Deposited, LeadStatus.Approved);
         }
 
-        public static Lead Create(string tenantId, string uniqueId, long leadId, string firstName, 
-            string lastName, string password, string email, string phone, string ip, string country, 
+        public static Lead Create(string tenantId, long sequence, LeadGeneralInfo leadGeneralInfo, 
             LeadRouteInfo routeInfo, LeadAdditionalInfo additionalInfo, LeadCustomerInfo customerInfo)
         {
             var currentDate = DateTimeOffset.UtcNow;
             return new Lead(
                 tenantId,
-                uniqueId,
-                leadId,
-                firstName,
-                lastName,
-                password,
-                email,
-                phone,
-                ip,
-                country,
-                LeadCrmStatus.New,
-                currentDate,
-                null,
-                null,
-                currentDate,
-                0,
+                sequence,
+                leadGeneralInfo,
                 routeInfo,
                 additionalInfo, 
                 customerInfo

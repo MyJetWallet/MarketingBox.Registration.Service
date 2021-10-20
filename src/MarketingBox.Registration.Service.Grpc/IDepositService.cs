@@ -8,9 +8,9 @@ namespace MarketingBox.Registration.Service.Grpc
     public interface IDepositService
     {
         [OperationContract]
-        Task<DepositCreateResponse> CreateDepositAsync(DepositCreateRequest request);
+        Task<DepositResponse> RegisterDepositAsync(DepositCreateRequest request);
 
         [OperationContract]
-        Task<DepositApproveResponse> ApproveDepositAsync(DepositApproveRequest request);
+        Task<DepositResponse> ApproveDepositAsync(DepositApproveRequest request);
     }
 }

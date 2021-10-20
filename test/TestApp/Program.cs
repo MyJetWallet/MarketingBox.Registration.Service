@@ -29,7 +29,7 @@ namespace TestApp
 
 
 
-            var deposit = await depositService.CreateDepositAsync(
+            var deposit = await depositService.RegisterDepositAsync(
                 new DepositCreateRequest()
                 {
                     Email = "email@email.com",

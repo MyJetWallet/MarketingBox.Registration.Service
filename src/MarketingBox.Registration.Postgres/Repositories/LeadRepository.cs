@@ -49,5 +49,6 @@ namespace MarketingBox.Registration.Postgres.Repositories
         {
             throw new System.NotImplementedException();
         }
+
     }
 }

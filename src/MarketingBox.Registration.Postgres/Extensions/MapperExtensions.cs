@@ -46,6 +46,7 @@ namespace MarketingBox.Registration.Postgres.Extensions
                 CustomerInfoCustomerId = lead.CustomerInfo?.CustomerId,
                 CustomerInfoLoginUrl = lead.CustomerInfo?.LoginUrl,
                 CustomerInfoToken = lead.CustomerInfo?.Token,
+                CustomerInfoBrand = lead.CustomerInfo?.Brand,
                 Sequence = lead.Sequence,
             };
         }

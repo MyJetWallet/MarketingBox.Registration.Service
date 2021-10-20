@@ -11,7 +11,7 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Deposits.Contracts
         public string TenantId { get; set; }
 
         [DataMember(Order = 2)]
-        public long DepositId { get; set; }
+        public long LeadId { get; set; }
 
         [DataMember(Order = 3)]
         public ApproveMode Mode { get; set; }

@@ -1,13 +1,11 @@
 ﻿using System;
-using MarketingBox.Registration.Service.Domain.Leads;
-using MarketingBox.Registration.Service.Services;
 using NUnit.Framework;
 
 namespace MarketingBox.Registration.Service.Tests
 {
     public class MappingTest
     {
-        private Lead lead;
+        //private Lead lead;
         [SetUp]
         public void Setup()
         {
@@ -54,7 +52,7 @@ namespace MarketingBox.Registration.Service.Tests
         [Test]
         public void Test1()
         {
-            var response = LeadService.MapToMessage(lead);
+            //var response = LeadService.MapToMessage(lead);
             Console.WriteLine("Debug output");
             Assert.Pass();
         }
