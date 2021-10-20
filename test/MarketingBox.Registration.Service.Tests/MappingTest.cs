@@ -20,8 +20,8 @@ namespace MarketingBox.Registration.Service.Tests
                 //Ip = "127.0.0.1",
                 //Password = "Password",
                 //Phone = "+77778889999",
-                //CrmStatus = LeadCrmStatus.New,
-                //CrmStatus = LeadCrmStatus.Unsigned,
+                //RouteInfoCrmStatus = LeadCrmStatus.New,
+                //RouteInfoCrmStatus = LeadCrmStatus.Unsigned,
                 //Sequence = 0,
                 //BrandRegistrationInfo = new Postgres.Entities.Lead.LeadCustomerInfo()
                 //{

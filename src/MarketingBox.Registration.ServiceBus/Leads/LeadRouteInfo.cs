@@ -1,4 +1,6 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
+using MarketingBox.Registration.Service.Messages.Common;
 
 namespace MarketingBox.Registration.Service.Messages.Leads
 {
@@ -19,6 +21,24 @@ namespace MarketingBox.Registration.Service.Messages.Leads
 
         [DataMember(Order = 5)]
         public long BrandId { get; set; }
+
+        [DataMember(Order = 6)]
+        public LeadStatus Status { get; set; }
+
+        [DataMember(Order = 7)]
+        public string CrmCrmStatus { get; set; }
+
+        [DataMember(Order = 8)]
+        public DateTime? DepositDate { get; set; }
+
+        [DataMember(Order = 9)]
+        public DateTime? ConversionDate { get; set; }
+
+        [DataMember(Order = 10)]
+        public LeadCustomerInfo CustomerInfo { get; set; }
+
+        [DataMember(Order = 11)]
+        public LeadApprovedType ApprovedType { get; set; }
     }
 }
 

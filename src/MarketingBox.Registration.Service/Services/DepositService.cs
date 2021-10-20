@@ -103,16 +103,16 @@ namespace MarketingBox.Registration.Service.Services
                     CreatedAt = lead.LeadInfo.CreatedAt.UtcDateTime,
                     LeadId = lead.LeadInfo.LeadId,
                     UniqueId = lead.LeadInfo.UniqueId,
-                    CrmCrmStatus = lead.LeadInfo.CrmStatus.MapEnum<MarketingBox.Registration.Service.Grpc.Models.Leads.LeadCrmStatus>(),
-                    Status = lead.LeadInfo.Status.MapEnum<MarketingBox.Registration.Service.Grpc.Models.Leads.LeadStatus>(),
+                    CrmCrmStatus = lead.RouteInfo.CrmStatus,
+                    Status = lead.RouteInfo.Status.MapEnum<MarketingBox.Registration.Service.Grpc.Models.Leads.LeadStatus>(),
                     Country = lead.LeadInfo.Country,
-                    ConversionDate = lead.LeadInfo.ConversionDate?.UtcDateTime,
-                    DepositDate = lead.LeadInfo.DepositDate?.UtcDateTime,
+                    ConversionDate = lead.RouteInfo.ConversionDate?.UtcDateTime,
+                    DepositDate = lead.RouteInfo.DepositDate?.UtcDateTime,
                     UpdatedAt = lead.LeadInfo.UpdatedAt.UtcDateTime,
                 }
                 //LeadId = lead.LeadInfo.LeadId,
                 //Message = $"Lead {lead.LeadInfo.LeadId} can be approved as depositor, current status " +
-                //          $"{lead.LeadInfo.Status.ToString()} at {lead.LeadInfo.DepositDate}",
+                //          $"{lead.LeadInfo.RouteInfoStatus.ToString()} at {lead.LeadInfo.RouteInfoDepositDate}",
             };
         }
     }

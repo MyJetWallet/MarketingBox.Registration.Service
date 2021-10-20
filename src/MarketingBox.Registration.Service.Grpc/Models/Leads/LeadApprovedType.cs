@@ -1,6 +1,6 @@
-﻿namespace MarketingBox.Registration.Service.Messages.Common
+﻿namespace MarketingBox.Registration.Service.Grpc.Models.Leads
 {
-    public enum ApprovedType
+    public enum LeadApprovedType
     {
         Unknown = 0,
         Declined = 1,
@@ -8,4 +8,4 @@
         ApprovedManually = 3,
         ApprovedFromCrm = 4
     }
-}   
+}

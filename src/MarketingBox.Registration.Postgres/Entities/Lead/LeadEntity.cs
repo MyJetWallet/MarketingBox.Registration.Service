@@ -20,6 +20,8 @@ namespace MarketingBox.Registration.Postgres.Entities.Lead
         public long RouteInfoBoxId { get; set; }
         public string RouteInfoBrand { get; set; }
         public long RouteInfoBrandId { get; set; }
+        public LeadStatus RouteInfoStatus { get; set; }
+        public LeadApprovedType RouteInfoApprovedType { get; set; }
         public string AdditionalInfoSo { get; set; }
         public string AdditionalInfoSub { get; set; }
         public string AdditionalInfoSub1 { get; set; }
@@ -32,15 +34,14 @@ namespace MarketingBox.Registration.Postgres.Entities.Lead
         public string AdditionalInfoSub8 { get; set; }
         public string AdditionalInfoSub9 { get; set; }
         public string AdditionalInfoSub10 { get; set; }
-        public string CustomerInfoCustomerId { get; set; }
-        public string CustomerInfoToken { get; set; }
-        public string CustomerInfoLoginUrl { get; set; }
-        public string CustomerInfoBrand { get; set; }
-        public LeadStatus Status { get; set; }
-        public LeadCrmStatus CrmStatus { get; set; }
+        public string RouteInfoCustomerInfoCustomerId { get; set; }
+        public string RouteInfoCustomerInfoToken { get; set; }
+        public string RouteInfoCustomerInfoLoginUrl { get; set; }
+        public string RouteInfoCustomerInfoBrand { get; set; }
+        public string RouteInfoCrmStatus { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
-        public DateTimeOffset? DepositDate { get; set; }
-        public DateTimeOffset? ConversionDate { get; set; }
+        public DateTimeOffset? RouteInfoDepositDate { get; set; }
+        public DateTimeOffset? RouteInfoConversionDate { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }
         public long Sequence { get; set; }
     }

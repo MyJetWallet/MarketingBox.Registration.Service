@@ -23,21 +23,13 @@ namespace MarketingBox.Registration.Service.MyNoSql.Leads
         [LogMasked(PreserveLength = true, ShowFirst = 2, ShowLast = 2)]
         public string Ip { get; set; }
 
-        public DateTime CreatedAt { get; set; }
-
         public string Country { get; set; }
 
         public long LeadId { get; set; }
 
         public string UniqueId { get; set; }
-        
-        public LeadStatus Status { get; set; }
 
-        public LeadCrmStatus CrmCrmStatus { get; set; }
-
-        public DateTime? DepositDate { get; set; }
-
-        public DateTime? ConversionDate { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
     }

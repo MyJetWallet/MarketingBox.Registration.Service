@@ -54,7 +54,7 @@ namespace MarketingBox.Registration.Postgres.Repositories
         {
             using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
             var existingLeadEntity = await ctx.Leads.FirstOrDefaultAsync(x => x.TenantId == tenantId &&
-                                                                              x.CustomerInfoCustomerId == customerId);
+                                                                              x.RouteInfoCustomerInfoCustomerId == customerId);
 
             if (existingLeadEntity == null)
             {

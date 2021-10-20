@@ -13,11 +13,7 @@ namespace MarketingBox.Registration.Service.Domain.Leads
         public string Phone { get; set; }
         public string Ip { get; set; }
         public string Country { get; set; }
-        public LeadStatus Status { get; set; }
-        public LeadCrmStatus CrmStatus { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
-        public DateTimeOffset? DepositDate { get; set; }
-        public DateTimeOffset? ConversionDate { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }
     }
 }

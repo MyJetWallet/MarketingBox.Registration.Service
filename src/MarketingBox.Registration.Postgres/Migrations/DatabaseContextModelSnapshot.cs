@@ -63,31 +63,10 @@ namespace MarketingBox.Registration.Postgres.Migrations
                     b.Property<string>("AdditionalInfoSub9")
                         .HasColumnType("text");
 
-                    b.Property<DateTimeOffset?>("ConversionDate")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Country")
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("CrmStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("CustomerInfoBrand")
-                        .HasColumnType("text");
-
-                    b.Property<string>("CustomerInfoCustomerId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("CustomerInfoLoginUrl")
-                        .HasColumnType("text");
-
-                    b.Property<string>("CustomerInfoToken")
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset?>("DepositDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
@@ -111,6 +90,9 @@ namespace MarketingBox.Registration.Postgres.Migrations
                     b.Property<long>("RouteInfoAffiliateId")
                         .HasColumnType("bigint");
 
+                    b.Property<int>("RouteInfoApprovedType")
+                        .HasColumnType("integer");
+
                     b.Property<long>("RouteInfoBoxId")
                         .HasColumnType("bigint");
 
@@ -123,11 +105,32 @@ namespace MarketingBox.Registration.Postgres.Migrations
                     b.Property<long>("RouteInfoCampaignId")
                         .HasColumnType("bigint");
 
+                    b.Property<DateTimeOffset?>("RouteInfoConversionDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RouteInfoCrmStatus")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RouteInfoCustomerInfoBrand")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RouteInfoCustomerInfoCustomerId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RouteInfoCustomerInfoLoginUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RouteInfoCustomerInfoToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("RouteInfoDepositDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("RouteInfoStatus")
+                        .HasColumnType("integer");
+
                     b.Property<long>("Sequence")
                         .HasColumnType("bigint");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
 
                     b.Property<string>("TenantId")
                         .HasColumnType("text");

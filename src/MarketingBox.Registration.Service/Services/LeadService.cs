@@ -89,7 +89,12 @@ namespace MarketingBox.Registration.Service.Services
                     CampaignId = campaignId,
                     Brand = brandName,
                     BoxId = request.AuthInfo.BoxId,
-                    AffiliateId = request.AuthInfo.AffiliateId
+                    AffiliateId = request.AuthInfo.AffiliateId,
+                    Status = Domain.Leads.LeadStatus.Created,
+                    CustomerInfo = new Domain.Leads.LeadCustomerInfo()
+                    {
+
+                    }
                 };
                 var leadAdditionalInfo = new Domain.Leads.LeadAdditionalInfo()
                 {
@@ -119,13 +124,11 @@ namespace MarketingBox.Registration.Service.Services
                     Phone = request.GeneralInfo?.Phone,
                     Ip = request.GeneralInfo?.Ip,
                     Country = request.GeneralInfo?.Country,
-                    Status = Domain.Leads.LeadStatus.Created,
-                    CrmStatus = Domain.Leads.LeadCrmStatus.New,
                     CreatedAt = currentDate,
                     UpdatedAt = currentDate,
                 };
 
-                var lead = Lead.Create(tenantId, 0, leadGeneralInfo, leadBrandRegistrationInfo, leadAdditionalInfo, null);
+                var lead = Lead.Create(tenantId, 0, leadGeneralInfo, leadBrandRegistrationInfo, leadAdditionalInfo);
 
                 await _repository.SaveAsync(lead);
 
@@ -270,16 +273,16 @@ namespace MarketingBox.Registration.Service.Services
             return new LeadCreateResponse()
             {
                 Status = ResultCode.CompletedSuccessfully,
-                Message = lead.CustomerInfo.LoginUrl,
+                Message = lead.RouteInfo.CustomerInfo.LoginUrl,
                 BrandInfo = new MarketingBox.Registration.Service.Grpc.Models.Leads.LeadBrandInfo()
                 {
                     Status = ResultCode.CompletedSuccessfully,
                     Data = new MarketingBox.Registration.Service.Grpc.Models.Leads.LeadCustomerInfo()
                     {
-                        CustomerId = lead.CustomerInfo.CustomerId,
-                        LoginUrl = lead.CustomerInfo.LoginUrl,
-                        Token = lead.CustomerInfo.Token,
-                        Brand = lead.CustomerInfo.Brand
+                        CustomerId = lead.RouteInfo.CustomerInfo.CustomerId,
+                        LoginUrl = lead.RouteInfo.CustomerInfo.LoginUrl,
+                        Token = lead.RouteInfo.CustomerInfo.Token,
+                        Brand = lead.RouteInfo.CustomerInfo.Brand
                     },
                 },
                 FallbackUrl = string.Empty,

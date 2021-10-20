@@ -17,11 +17,8 @@ namespace MarketingBox.Registration.Service.Messages.Leads
 
         [DataMember(Order = 4)]
         public LeadAdditionalInfo AdditionalInfo { get; set; }
-
-        [DataMember(Order = 5)]
-        public LeadCustomerInfo CustomerInfo { get; set; }
         
-        [DataMember(Order = 6)]
+        [DataMember(Order = 5)]
         public long Sequence { get; set; }
     }
 }

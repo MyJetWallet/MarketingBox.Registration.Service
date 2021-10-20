@@ -76,11 +76,7 @@ namespace MarketingBox.Registration.Service.Extensions
                     CreatedAt = lead.LeadInfo.CreatedAt.UtcDateTime,
                     LeadId = lead.LeadInfo.LeadId,
                     UniqueId = lead.LeadInfo.UniqueId,
-                    CrmCrmStatus = lead.LeadInfo.CrmStatus.MapEnum<Messages.Common.LeadCrmStatus>(),
-                    Status = lead.LeadInfo.Status.MapEnum<Messages.Common.LeadStatus>(),
                     Country = lead.LeadInfo.Country,
-                    ConversionDate = lead.LeadInfo.ConversionDate?.UtcDateTime,
-                    DepositDate = lead.LeadInfo.DepositDate?.UtcDateTime,
                     UpdatedAt = lead.LeadInfo.UpdatedAt.UtcDateTime
                 },
                 AdditionalInfo = new LeadAdditionalInfo()
@@ -104,13 +100,18 @@ namespace MarketingBox.Registration.Service.Extensions
                     BoxId = lead.RouteInfo.BoxId,
                     Brand = lead.RouteInfo.Brand,
                     CampaignId = lead.RouteInfo.CampaignId,
-                    BrandId = lead.RouteInfo.BrandId
-                },
-                CustomerInfo = new Messages.Leads.LeadCustomerInfo()
-                {
-                    CustomerId = lead.CustomerInfo?.CustomerId,
-                    LoginUrl = lead.CustomerInfo?.LoginUrl,
-                    Token = lead.CustomerInfo?.Token,
+                    BrandId = lead.RouteInfo.BrandId,
+                    ConversionDate = lead.RouteInfo.ConversionDate?.UtcDateTime,
+                    DepositDate = lead.RouteInfo.DepositDate?.UtcDateTime,
+                    CrmCrmStatus = lead.RouteInfo.CrmStatus,
+                    Status = lead.RouteInfo.Status.MapEnum<Messages.Common.LeadStatus>(),
+                    CustomerInfo = new Messages.Leads.LeadCustomerInfo()
+                    {
+                        CustomerId = lead.RouteInfo?.CustomerInfo?.CustomerId,
+                        LoginUrl = lead.RouteInfo?.CustomerInfo?.LoginUrl,
+                        Token = lead.RouteInfo?.CustomerInfo?.Token,
+                    },
+                    ApprovedType = lead.RouteInfo.ApprovedType.MapEnum<Messages.Common.LeadApprovedType>(),
                 },
             };
         }
@@ -121,18 +122,17 @@ namespace MarketingBox.Registration.Service.Extensions
                 new MyNoSql.Leads.LeadNoSqlInfo()
                 {
                     TenantId = lead.TenantId,
+                    Sequence = lead.Sequence,
                     GeneralInfo = new MyNoSql.Leads.LeadGeneralInfo()
                     {
-                        Status = lead.LeadInfo.Status.MapEnum<MarketingBox.Registration.Service.MyNoSql.Leads.LeadStatus>(),
                         LeadId = lead.LeadInfo.LeadId,
                         CreatedAt = lead.LeadInfo.CreatedAt.UtcDateTime,
                         Email = lead.LeadInfo.Email,
-                        DepositDate = lead.LeadInfo.DepositDate?.UtcDateTime,
+                        
                         UpdatedAt = lead.LeadInfo.UpdatedAt.UtcDateTime,
                         Country = lead.LeadInfo.Country,
                         Ip = lead.LeadInfo.Ip,
-                        ConversionDate = lead.LeadInfo.ConversionDate?.UtcDateTime,
-                        CrmCrmStatus = lead.LeadInfo.Status.MapEnum<MarketingBox.Registration.Service.MyNoSql.Leads.LeadCrmStatus>(),
+
                         FirstName = lead.LeadInfo.FirstName,
                         LastName = lead.LeadInfo.LastName,
                         Password = lead.LeadInfo.Password,
@@ -161,15 +161,20 @@ namespace MarketingBox.Registration.Service.Extensions
                         BoxId = lead.RouteInfo.BoxId,
                         Brand = lead.RouteInfo.Brand,
                         CampaignId = lead.RouteInfo.CampaignId,
-                        BrandId = lead.RouteInfo.BrandId
+                        BrandId = lead.RouteInfo.BrandId,
+                        Status = lead.RouteInfo.Status.MapEnum<MarketingBox.Registration.Service.MyNoSql.Leads.LeadStatus>(),
+                        DepositDate = lead.RouteInfo?.DepositDate?.UtcDateTime,
+                        ConversionDate = lead.RouteInfo?.ConversionDate?.UtcDateTime,
+                        CrmCrmStatus = lead.RouteInfo.CrmStatus,
+                        CustomerInfo = new MyNoSql.Leads.LeadCustomerInfo()
+                        {
+                            CustomerId = lead.RouteInfo?.CustomerInfo?.CustomerId,
+                            Token = lead.RouteInfo?.CustomerInfo?.Token,
+                            LoginUrl = lead.RouteInfo?.CustomerInfo?.LoginUrl,
+                            Brand = lead.RouteInfo?.CustomerInfo?.Brand
+                        },
+                        ApprovedType = lead.RouteInfo.ApprovedType.MapEnum<MarketingBox.Registration.Service.MyNoSql.Leads.LeadApprovedType>(),
                     },
-                    CustomerInfo = new MyNoSql.Leads.LeadCustomerInfo()
-                    {
-                        CustomerId = lead.CustomerInfo?.CustomerId,
-                        Token = lead.CustomerInfo?.Token,
-                        LoginUrl = lead.CustomerInfo?.LoginUrl,
-                        Brand = lead.CustomerInfo?.Brand
-                    }
                 });
         }
     }

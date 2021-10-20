@@ -47,7 +47,7 @@ namespace MarketingBox.Registration.Service.Grpc.Models.Leads
         public LeadStatus Status { get; set; }
 
         [DataMember(Order = 12)]
-        public LeadCrmStatus CrmCrmStatus { get; set; }
+        public string CrmCrmStatus { get; set; }
 
         [DataMember(Order = 13)]
         public DateTime? DepositDate { get; set; }
