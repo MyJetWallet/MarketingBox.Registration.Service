@@ -51,8 +51,9 @@ namespace MarketingBox.Registration.Postgres
             modelBuilder.Entity<LeadEntity>().HasIndex(e => new {e.TenantId, e.LeadId});
 
             modelBuilder.Entity<LeadIdGeneratorEntity>().ToTable(LeadIdGeneratorTableName);
-            modelBuilder.Entity<LeadIdGeneratorEntity>().HasKey(e => e.LeadId);
-            modelBuilder.Entity<LeadIdGeneratorEntity>().HasIndex(e => new { e.TenantId, GenerateId = e.GeneratorId });
+            modelBuilder.Entity<LeadIdGeneratorEntity>().HasKey(e => new { e.TenantId, e.GeneratorId });
+            modelBuilder.Entity<LeadIdGeneratorEntity>().Property(p => p.LeadId).ValueGeneratedOnAdd();
+            //modelBuilder.Entity<LeadIdGeneratorEntity>().HasIndex(e => new { e.TenantId, GenerateId = e.GeneratorId });
         }
 
         public override void Dispose()
