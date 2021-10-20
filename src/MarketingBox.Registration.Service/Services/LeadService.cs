@@ -82,7 +82,7 @@ namespace MarketingBox.Registration.Service.Services
 
             try
             {
-                var leadId = await _repository.GetLeadIdAsync(request.TenantId, request.GeneratorId());
+                var leadId = await _repository.GenerateLeadIdAsync(request.TenantId, request.GeneratorId());
                 var leadBrandRegistrationInfo = new Domain.Leads.LeadRouteInfo()
                 {
                     BrandId = brandId,

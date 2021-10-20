@@ -32,7 +32,7 @@ namespace MarketingBox.Registration.Postgres.Repositories
             }
         }
 
-        public async Task<long> GetLeadIdAsync(string tenantId, string generatorId)
+        public async Task<long> GenerateLeadIdAsync(string tenantId, string generatorId)
         {
             await using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
             var entity = new LeadIdGeneratorEntity()
@@ -50,5 +50,32 @@ namespace MarketingBox.Registration.Postgres.Repositories
             throw new System.NotImplementedException();
         }
 
+        public async Task<Lead> GetLeadByCustomerIdAsync(string tenantId, string customerId)
+        {
+            using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
+            var existingLeadEntity = await ctx.Leads.FirstOrDefaultAsync(x => x.TenantId == tenantId &&
+                                                                              x.CustomerInfoCustomerId == customerId);
+
+            if (existingLeadEntity == null)
+            {
+                throw new Exception($"Lead with customerId {customerId} can't be found");
+            }
+
+            return existingLeadEntity.CreateLead();
+        }
+
+        public async Task<Lead> GetLeadByLeadIdAsync(string tenantId, long leadId)
+        {
+            using var ctx = new DatabaseContext(_dbContextOptionsBuilder.Options);
+            var existingLeadEntity = await ctx.Leads.FirstOrDefaultAsync(x => x.TenantId == tenantId &&
+                                                                              x.LeadId == leadId);
+
+            if (existingLeadEntity == null)
+            {
+                throw new Exception($"Lead with leadId {leadId} can't be found");
+            }
+
+            return existingLeadEntity.CreateLead();
+        }
     }
 }

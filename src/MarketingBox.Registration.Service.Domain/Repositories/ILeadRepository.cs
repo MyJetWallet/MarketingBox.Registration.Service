@@ -6,7 +6,9 @@ namespace MarketingBox.Registration.Service.Domain.Repositories
     public interface ILeadRepository
     {
         Task SaveAsync(Lead lead);
-        Task<long> GetLeadIdAsync(string tenantId, string generatorId);
+        Task<long> GenerateLeadIdAsync(string tenantId, string generatorId);
         Task<Lead> RestoreAsync(long leadId);
+        Task<Lead> GetLeadByCustomerIdAsync(string tenantId, string customerId);
+        Task<Lead> GetLeadByLeadIdAsync(string tenantId, long leadId);
     }
 }

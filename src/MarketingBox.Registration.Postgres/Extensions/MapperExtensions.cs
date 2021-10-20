@@ -50,5 +50,63 @@ namespace MarketingBox.Registration.Postgres.Extensions
                 Sequence = lead.Sequence,
             };
         }
+
+        public static Lead CreateLead(this LeadEntity leadEntity)
+        {
+            var leadBrandRegistrationInfo = new LeadRouteInfo()
+            {
+                BrandId = leadEntity.RouteInfoBrandId,
+                CampaignId = leadEntity.RouteInfoCampaignId,
+                Brand = leadEntity.CustomerInfoBrand,
+                BoxId = leadEntity.RouteInfoBoxId,
+                AffiliateId = leadEntity.RouteInfoAffiliateId
+            };
+            var leadAdditionalInfo = new LeadAdditionalInfo()
+            {
+                So = leadEntity.AdditionalInfoSo,
+                Sub = leadEntity.AdditionalInfoSub,
+                Sub1 = leadEntity.AdditionalInfoSub1,
+                Sub2 = leadEntity.AdditionalInfoSub2,
+                Sub3 = leadEntity.AdditionalInfoSub3,
+                Sub4 = leadEntity.AdditionalInfoSub4,
+                Sub5 = leadEntity.AdditionalInfoSub5,
+                Sub6 = leadEntity.AdditionalInfoSub6,
+                Sub7 = leadEntity.AdditionalInfoSub7,
+                Sub8 = leadEntity.AdditionalInfoSub8,
+                Sub9 = leadEntity.AdditionalInfoSub9,
+                Sub10 = leadEntity.AdditionalInfoSub10,
+
+            };
+            var leadGeneralInfo = new LeadGeneralInfo()
+            {
+                UniqueId = leadEntity.UniqueId,
+                LeadId = leadEntity.LeadId,
+                FirstName = leadEntity.FirstName,
+                LastName = leadEntity.LastName,
+                Password = leadEntity.Password,
+                Email = leadEntity.Email,
+                Phone = leadEntity.Phone,
+                Ip = leadEntity.Ip,
+                Country = leadEntity.Country,
+                Status = leadEntity.Status,
+                CrmStatus = leadEntity.CrmStatus,
+                CreatedAt = leadEntity.CreatedAt,
+                ConversionDate = leadEntity.ConversionDate,
+                DepositDate = leadEntity.DepositDate,
+                UpdatedAt = leadEntity.UpdatedAt,
+            };
+
+            var leadCustomerInfo = new LeadCustomerInfo()
+            {
+                CustomerId = leadEntity.CustomerInfoCustomerId,
+                Token = leadEntity.CustomerInfoToken,
+                LoginUrl = leadEntity.CustomerInfoLoginUrl,
+                Brand = leadEntity.CustomerInfoBrand
+            };
+
+            var lead = Lead.Create(leadEntity.TenantId, leadEntity.Sequence, leadGeneralInfo,
+                leadBrandRegistrationInfo, leadAdditionalInfo, leadCustomerInfo);
+            return lead;
+        }
     }
 }
