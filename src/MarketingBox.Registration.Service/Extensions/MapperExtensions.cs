@@ -21,19 +21,19 @@ namespace MarketingBox.Registration.Service.Extensions
             return new RegistrationRequest()
             {
                 TenantId = lead.TenantId,
-                LeadId = lead.LeadId,
-                LeadUniqueId = lead.UniqueId,
+                LeadId = lead.LeadInfo.LeadId,
+                LeadUniqueId = lead.LeadInfo.UniqueId,
                 BrandName = lead.RouteInfo.Brand,
                 BrandId = lead.RouteInfo.BrandId,
                 Info = new RegistrationLeadInfo()
                 {
-                    FirstName = lead.FirstName,
-                    LastName = lead.LastName,
-                    Email = lead.Email,
-                    Ip = lead.Ip,
-                    Phone = lead.Phone,
-                    Password = lead.Password,
-                    Country = lead.Country,
+                    FirstName = lead.LeadInfo.FirstName,
+                    LastName = lead.LeadInfo.LastName,
+                    Email = lead.LeadInfo.Email,
+                    Ip = lead.LeadInfo.Ip,
+                    Phone = lead.LeadInfo.Phone,
+                    Password = lead.LeadInfo.Password,
+                    Country = lead.LeadInfo.Country,
                 },
                 AdditionalInfo = new RegistrationLeadAdditionalInfo()
                 {

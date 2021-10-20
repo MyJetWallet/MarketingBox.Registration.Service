@@ -28,7 +28,7 @@ namespace MarketingBox.Registration.Postgres.Repositories
 
             if (rowsCount == 0)
             {
-                throw new Exception($"Lead {lead.LeadId} already updated, try to use most recent version");
+                throw new Exception($"Lead {lead.LeadInfo.LeadId} already updated, try to use most recent version");
             }
         }
 

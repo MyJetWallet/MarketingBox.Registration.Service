@@ -291,7 +291,7 @@ namespace MarketingBox.Registration.Service.Services
                     },
                 },
                 FallbackUrl = string.Empty,
-                LeadId = lead.LeadId,
+                LeadId = lead.LeadInfo.LeadId,
 
             };
         }
@@ -325,21 +325,21 @@ namespace MarketingBox.Registration.Service.Services
                 Sequence = lead.Sequence,
                 GeneralInfo = new LeadGeneralInfoMessage()
                 {
-                    Email = lead.Email,
-                    FirstName = lead.FirstName,
-                    LastName = lead.LastName,
-                    Phone = lead.Phone,
-                    Ip = lead.Ip,
-                    Password = lead.Password,
-                    CreatedAt = lead.CreatedAt.UtcDateTime,
-                    LeadId = lead.LeadId,
-                    UniqueId = lead.UniqueId,
-                    CrmCrmStatus = lead.CrmStatus.MapEnum<Messages.Common.LeadCrmStatus>(),
-                    Status = lead.Status.MapEnum<Messages.Common.LeadStatus>(),
-                    Country = lead.Country,
-                    ConversionDate = lead.ConversionDate?.UtcDateTime,
-                    DepositDate = lead.DepositDate?.UtcDateTime,
-                    UpdatedAt = lead.UpdatedAt.UtcDateTime
+                    Email = lead.LeadInfo.Email,
+                    FirstName = lead.LeadInfo.FirstName,
+                    LastName = lead.LeadInfo.LastName,
+                    Phone = lead.LeadInfo.Phone,
+                    Ip = lead.LeadInfo.Ip,
+                    Password = lead.LeadInfo.Password,
+                    CreatedAt = lead.LeadInfo.CreatedAt.UtcDateTime,
+                    LeadId = lead.LeadInfo.LeadId,
+                    UniqueId = lead.LeadInfo.UniqueId,
+                    CrmCrmStatus = lead.LeadInfo.CrmStatus.MapEnum<Messages.Common.LeadCrmStatus>(),
+                    Status = lead.LeadInfo.Status.MapEnum<Messages.Common.LeadStatus>(),
+                    Country = lead.LeadInfo.Country,
+                    ConversionDate = lead.LeadInfo.ConversionDate?.UtcDateTime,
+                    DepositDate = lead.LeadInfo.DepositDate?.UtcDateTime,
+                    UpdatedAt = lead.LeadInfo.UpdatedAt.UtcDateTime
                 },
                 AdditionalInfo = new LeadAdditionalInfoMessage()
                 {
@@ -381,21 +381,21 @@ namespace MarketingBox.Registration.Service.Services
                     TenantId = lead.TenantId,
                     GeneralInfo = new MyNoSql.Leads.LeadGeneralInfo()
                     {
-                        Status = lead.Status.MapEnum<MarketingBox.Registration.Service.MyNoSql.Leads.LeadStatus>(),
-                        LeadId = lead.LeadId,
-                        CreatedAt = lead.CreatedAt.UtcDateTime,
-                        Email = lead.Email,
-                        DepositDate = lead.DepositDate?.UtcDateTime,
-                        UpdatedAt = lead.UpdatedAt.UtcDateTime,
-                        Country = lead.Country,
-                        Ip = lead.Ip,
-                        ConversionDate = lead.ConversionDate?.UtcDateTime,
-                        CrmCrmStatus = lead.Status.MapEnum<MarketingBox.Registration.Service.MyNoSql.Leads.LeadCrmStatus>(),
-                        FirstName = lead.FirstName,
-                        LastName = lead.LastName,
-                        Password = lead.Password,
-                        Phone = lead.Phone,
-                        UniqueId = lead.UniqueId
+                        Status = lead.LeadInfo.Status.MapEnum<MarketingBox.Registration.Service.MyNoSql.Leads.LeadStatus>(),
+                        LeadId = lead.LeadInfo.LeadId,
+                        CreatedAt = lead.LeadInfo.CreatedAt.UtcDateTime,
+                        Email = lead.LeadInfo.Email,
+                        DepositDate = lead.LeadInfo.DepositDate?.UtcDateTime,
+                        UpdatedAt = lead.LeadInfo.UpdatedAt.UtcDateTime,
+                        Country = lead.LeadInfo.Country,
+                        Ip = lead.LeadInfo.Ip,
+                        ConversionDate = lead.LeadInfo.ConversionDate?.UtcDateTime,
+                        CrmCrmStatus = lead.LeadInfo.Status.MapEnum<MarketingBox.Registration.Service.MyNoSql.Leads.LeadCrmStatus>(),
+                        FirstName = lead.LeadInfo.FirstName,
+                        LastName = lead.LeadInfo.LastName,
+                        Password = lead.LeadInfo.Password,
+                        Phone = lead.LeadInfo.Phone,
+                        UniqueId = lead.LeadInfo.UniqueId
 
                     },
                     AdditionalInfo = new MyNoSql.Leads.LeadAdditionalInfo()
