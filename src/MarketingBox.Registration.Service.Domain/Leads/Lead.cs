@@ -44,9 +44,10 @@ namespace MarketingBox.Registration.Service.Domain.Leads
             RouteInfo.DepositDate = depositDate;
         }
 
-        public void Approved()
+        public void Approved(DateTimeOffset depositDate)
         {
             ChangeStatus(LeadStatus.Deposited, LeadStatus.Approved);
+            RouteInfo.ConversionDate = depositDate;
         }
 
         public static Lead Create(string tenantId, long sequence, LeadGeneralInfo leadGeneralInfo, 

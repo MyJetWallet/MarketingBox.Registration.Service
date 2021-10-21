@@ -67,7 +67,7 @@ namespace MarketingBox.Registration.Service.Services
             try
             {
                 var lead = await _repository.GetLeadByLeadIdAsync(request.TenantId, request.LeadId);
-                lead.Approved();
+                lead.Approved(DateTimeOffset.UtcNow);
 
                 await _repository.SaveAsync(lead);
 
