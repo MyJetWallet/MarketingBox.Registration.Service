@@ -133,23 +133,31 @@ namespace MarketingBox.Registration.Service.Services
                 await _repository.SaveAsync(lead);
 
                 await _publisherLeadUpdated.PublishAsync(lead.MapToMessage());
-                _logger.LogInformation("Sent original created to service bus {@context}", request);
+                _logger.LogInformation("Sent original created lead to service bus {@context}", request);
 
                 await _myNoSqlServerDataWriter.InsertOrReplaceAsync(lead.MapToNoSql());
-                _logger.LogInformation("Sent partner update to MyNoSql {@context}", request);
+                _logger.LogInformation("Sent lead update to MyNoSql {@context}", request);
 
                 var brandResponse = await BrandRegisterAsync(lead);
 
-                if (brandResponse.Status == ResultCode.CompletedSuccessfully)
+                if (brandResponse.Status != ResultCode.CompletedSuccessfully)
                 {
-                    lead.Register(new Domain.Leads.LeadCustomerInfo()
-                    {
-                        CustomerId = brandResponse.Data.CustomerId,
-                        LoginUrl = brandResponse.Data.LoginUrl,
-                        Token = brandResponse.Data.Token,
-                        Brand = brandResponse.Data.Brand
-                    });
+                    _logger.LogInformation("Failed to register on brand {@context} {@response}", request, brandResponse);
+                    return FailedMapToGrpc(new Error()
+                        {
+                            Message = "Can't register on brand",
+                            Type = ErrorType.InvalidPersonalData
+                        },
+                        request.GeneralInfo);
                 }
+
+                lead.Register(new Domain.Leads.LeadCustomerInfo()
+                {
+                    CustomerId = brandResponse.Data.CustomerId,
+                    LoginUrl = brandResponse.Data.LoginUrl,
+                    Token = brandResponse.Data.Token,
+                    Brand = brandResponse.Data.Brand
+                });
 
                 await _repository.SaveAsync(lead);
 
@@ -159,14 +167,7 @@ namespace MarketingBox.Registration.Service.Services
                 await _myNoSqlServerDataWriter.InsertOrReplaceAsync(lead.MapToNoSql());
                 _logger.LogInformation("Sent original update to MyNoSql {@context}", request);
 
-
-                return brandResponse.Status == ResultCode.CompletedSuccessfully ?
-                    SuccessfullMapToGrpc(lead) : FailedMapToGrpc(new Error()
-                    {
-                        Message = "Can't register on brand",
-                        Type = ErrorType.InvalidPersonalData
-                    },
-                    request.GeneralInfo); ;
+                return SuccessfullMapToGrpc(lead);
             }
             catch (Exception e)
             {
